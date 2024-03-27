@@ -1,0 +1,108 @@
+{{- if .Values.ingester.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "doku.fullname" . }}-ingester
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.ingester.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "doku.fullname" . }}-ingester
+  template:
+    metadata:
+      labels:
+        app: {{ include "doku.fullname" . }}-ingester
+    spec:
+      {{- with .Values.ingester.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: ingester
+        image: "{{ .Values.ingester.image.repository }}:{{ .Values.ingester.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.ingester.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.ingester.service.port }}
+        env:
+        {{- if .Values.clickhouse.enabled }}
+        - name: DOKU_DB_HOST
+          value: "{{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local"
+        {{- else }}
+        - name: DOKU_DB_HOST
+          value: "{{ .Values.ingester.config.database.host  }}"
+        {{- end }}
+        - name: DOKU_DB_PORT
+          value: "{{ .Values.ingester.config.database.port }}"
+        - name: DOKU_DB_NAME
+          value: "{{ .Values.ingester.config.database.name }}"
+        - name: DOKU_DB_MAX_OPEN_CONNS
+          value: "{{ .Values.ingester.config.database.maxOpenConns }}"
+        - name: DOKU_DB_MAX_IDLE_CONNS
+          value: "{{ .Values.ingester.config.database.maxIdleConns }}"
+        - name: DOKU_PRICING_JSON_URL
+          value: "{{ .Values.ingester.config.pricing.url }}"
+        {{ if .Values.ingester.config.secret }}
+        - name: DOKU_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.ingester.config.secret.name }}
+              key: {{ .Values.ingester.config.secret.usernameKey }}
+        - name: DOKU_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.ingester.config.secret.name }}
+              key: {{ .Values.ingester.config.secret.passwordKey }}
+        {{ else }}
+        - name: DOKU_DB_USER
+          value: "{{ .Values.ingester.config.database.username }}"
+        - name: DOKU_DB_PASSWORD
+          value: "{{ .Values.ingester.config.database.password }}"
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+        resources:
+            {{- toYaml .Values.ingester.resources | nindent 12 }}
+      {{- with .Values.ingester.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ingester.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ingester.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "doku.fullname" . }}-ingester
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "doku.fullname" . }}-ingester
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: http
+    port: 9044
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: {{ include "doku.fullname" . }}-ingester
+  sessionAffinity: {{ .Values.ingester.service.sessionAffinity }}
+  type: {{ .Values.ingester.service.type }}
+{{- end }}
