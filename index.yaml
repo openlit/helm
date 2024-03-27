@@ -1,0 +1,273 @@
+apiVersion: v1
+entries:
+  doku:
+  - apiVersion: v2
+    appVersion: 0.1.3
+    created: "2024-03-23T11:30:49.473916178Z"
+    description: A Helm chart for Doku
+    digest: 5889416e2919f9f658a7538b4172ddbb16d12f858f142edcf7a52c9fde8f737a
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.1.3/doku-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 0.1.2
+    created: "2024-03-17T18:52:31.652506539Z"
+    description: A Helm chart for Doku
+    digest: 24d08ad7affef046376bc760c210532ea53c635612b84b75c1040e3b36531730
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.1.2/doku-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 0.1.1
+    created: "2024-03-17T16:20:22.335628654Z"
+    description: A Helm chart for Doku
+    digest: bd400209267aa45ab227c373fc6494099610efa125a4258ce4be5ffee9b81188
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.1.1/doku-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2024-03-12T18:16:22.077600231Z"
+    description: A Helm chart for Doku
+    digest: 0039f379141818e2cf812fb65c80d146079707f83717a8cba51284801d176b89
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.1.0/doku-0.1.0.tgz
+    version: 0.1.0
+  - apiVersion: v2
+    appVersion: 0.0.7
+    created: "2024-03-10T12:42:44.47709001Z"
+    description: A Helm chart for Doku
+    digest: 784d9d6edb827bb2a562f0a7ef6b4d69aeb10c44d5696544c2f7714423127069
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.17/doku-0.0.17.tgz
+    version: 0.0.17
+  - apiVersion: v2
+    appVersion: 0.0.6
+    created: "2024-02-26T14:38:19.167731012Z"
+    description: A Helm chart for Doku
+    digest: 69de3cc8538dee74f5d96c752cde30a1d519575d42abdb52c0fd4c643812abfc
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.16/doku-0.0.16.tgz
+    version: 0.0.16
+  - apiVersion: v2
+    appVersion: 0.0.6
+    created: "2024-02-25T06:23:15.347517611Z"
+    description: A Helm chart for Doku
+    digest: 93a5c4d3aa48c9fa6bcd37dd3c5bf11cce24dac4938dc072fdf72c3417e52efa
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.15/doku-0.0.15.tgz
+    version: 0.0.15
+  - apiVersion: v2
+    appVersion: 0.0.5
+    created: "2024-02-17T13:01:47.742983255Z"
+    dependencies:
+    - alias: timescaledb
+      name: timescaledb-single
+      repository: https://charts.timescale.com/
+      version: 0.33.1
+    description: A Helm chart for Doku
+    digest: 69db97c9bafc286721b87f8bb9d89118836d6aed4b6058491f1576273a38b123
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.14/doku-0.0.14.tgz
+    version: 0.0.14
+  - apiVersion: v2
+    appVersion: 0.0.4
+    created: "2024-02-13T10:20:32.456868177Z"
+    dependencies:
+    - alias: timescaledb
+      name: timescaledb-single
+      repository: https://charts.timescale.com/
+      version: 0.33.1
+    description: A Helm chart for Doku
+    digest: d3ceaf5d659e3322bc1a277cc48781c0897e0d81c3a7cd4d24ef4bf078090691
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.13/doku-0.0.13.tgz
+    version: 0.0.13
+  - apiVersion: v2
+    appVersion: 0.0.4
+    created: "2024-02-13T09:56:26.314350448Z"
+    dependencies:
+    - alias: timescaledb
+      name: timescaledb-single
+      repository: https://charts.timescale.com/
+      version: 0.33.1
+    description: A Helm chart for Doku
+    digest: 017474f9018a48e84c954e2eb7a80ccafc5dd75cd9c0406a23ac14080aceb02d
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.12/doku-0.0.12.tgz
+    version: 0.0.12
+  - apiVersion: v2
+    appVersion: 0.0.4
+    created: "2024-02-13T09:37:29.319875575Z"
+    dependencies:
+    - alias: timescaledb
+      name: timescaledb-single
+      repository: https://charts.timescale.com/
+      version: 0.33.1
+    description: A Helm chart for Doku
+    digest: c7a4ca5245a0a833ff53968d92c0cc371969c4cb41c4b510f43bf681ee3ec40f
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.11/doku-0.0.11.tgz
+    version: 0.0.11
+  - apiVersion: v2
+    appVersion: 0.0.4
+    created: "2024-02-13T06:48:27.511322723Z"
+    dependencies:
+    - alias: timescaledb
+      name: timescaledb-single
+      repository: https://charts.timescale.com/
+      version: 0.33.1
+    description: A Helm chart for Doku
+    digest: fbb6db1489a50d0c42142217ba16328eb1d9fc332c32e743fbb1360cabefbc07
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.10/doku-0.0.10.tgz
+    version: 0.0.10
+  - apiVersion: v2
+    appVersion: 0.0.3
+    created: "2024-02-11T08:39:42.115313879Z"
+    dependencies:
+    - alias: timescaledb
+      name: timescaledb-single
+      repository: https://charts.timescale.com/
+      version: 0.33.1
+    description: A Helm chart for Doku
+    digest: fcdffa086743bc6abc6c9b3baf2fa9e7fe15a2b52d4237db4dd790ce89d8a64b
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.9/doku-0.0.9.tgz
+    version: 0.0.9
+  - apiVersion: v2
+    appVersion: 0.0.2
+    created: "2024-02-11T06:07:53.734910868Z"
+    dependencies:
+    - alias: timescaledb
+      name: timescaledb-single
+      repository: https://charts.timescale.com/
+      version: 0.33.1
+    description: A Helm chart for Doku
+    digest: e23527d41b3024a0b6a6d9f45a9421ec0d312d08cc4d5f230d68c75b4cb29055
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.8/doku-0.0.8.tgz
+    version: 0.0.8
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2024-01-25T10:30:59.968321085Z"
+    dependencies:
+    - alias: timescaledb
+      name: timescaledb-single
+      repository: https://charts.timescale.com/
+      version: 0.33.1
+    description: A Helm chart for Doku
+    digest: 5ef35a8ca509fe5139556d49c34a35e09f928c08e2ab306cce11008de2aa4d9b
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: dokulabs1@gmail.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.7/doku-0.0.7.tgz
+    version: 0.0.7
+  - apiVersion: v2
+    appVersion: 0.0.4
+    created: "2024-01-23T17:42:27.18023329Z"
+    dependencies:
+    - alias: timescaledb
+      name: timescaledb-single
+      repository: https://charts.timescale.com/
+      version: 0.33.1
+    description: A Helm chart for Doku
+    digest: f6d13f6a018afd2735bd0b3f74b2a573c2541390475f16a2a43c1b657a447e47
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: dokulabs1@gmail.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.0.6/doku-0.0.6.tgz
+    version: 0.0.6
+generated: "2024-03-23T11:30:49.474016735Z"

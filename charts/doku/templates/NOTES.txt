@@ -1,4 +1,4 @@
-{{- $service := .Values.ingester.service.type -}}
+{{- $service := .Values.service.type -}}
 
 ---------------------------------------------------------------------------------
 THANK YOU FOR INSTALLING {{ .Chart.Name | upper }}!
@@ -14,19 +14,12 @@ DOKU SERVICE DETAILS: LOADBALANCER
 Doku has been exposed via a LoadBalancer Service.
 
 You can find the external IP of your Doku service by running:
-  For Doku Client
 
-    kubectl get svc -l "app={{ include "doku.fullname" . }}-client" --namespace {{ .Release.Namespace }}
-
-    The Doku Client URL will be: http://<LoadBalancer-IP>:3000/
-  
-  For Doku Ingester
-
-    kubectl get svc -l "app={{ include "doku.fullname" . }}-ingester" --namespace {{ .Release.Namespace }}
-
-    The Doku Ingester URL will be: http://<LoadBalancer-IP>:9044/
+  kubectl get svc -l "app={{ include "doku.fullname" . }}" --namespace {{ .Release.Namespace }}
 
 It may take a few minutes for the LoadBalancer IP to be available.
+
+The Doku URL will be: http://<LoadBalancer-IP>/
 
 {{- else if eq $service "NodePort" }}
 ---------------------------------------------------------------------------------
@@ -40,17 +33,10 @@ To find the IP address of the node, execute:
   kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}'
 
 To find the NodePort, execute:
-  For Doku Client
 
-    kubectl get svc --namespace {{ .Release.Namespace }} -l "app={{ include "doku.fullname" . }}-client" -o jsonpath='{.items[0].spec.ports[0].nodePort}'
+  kubectl get svc --namespace {{ .Release.Namespace }} -l "app={{ include "doku.fullname" . }}" -o jsonpath='{.items[0].spec.ports[0].nodePort}'
 
-    Use the node's IP and the NodePort value to construct the Doku Client URL: http://<Node-IP>:<NodePort>
-  
-  For Doku Ingester
-
-    kubectl get svc --namespace {{ .Release.Namespace }} -l "app={{ include "doku.fullname" . }}-ingester" -o jsonpath='{.items[0].spec.ports[0].nodePort}'
-
-    Use the node's IP and the NodePort value to construct the Doku Ingester URL: http://<Node-IP>:<NodePort>
+Use the node's IP and the NodePort value to construct the Doku URL: http://<Node-IP>:<NodePort>
 
 {{- else if eq $service "ClusterIP" }}
 ---------------------------------------------------------------------------------
@@ -60,18 +46,10 @@ DOKU SERVICE DETAILS: CLUSTERIP
 Doku has been exposed via a ClusterIP Service.
 
 To access your Doku installation from your local machine, you will need to forward the service port:
-  
-  For Doku Client
 
-    kubectl port-forward svc/{{ include "doku.fullname" . }}-client <local-port>:{{ .Values.client.service.port }} --namespace {{ .Release.Namespace }}
+  kubectl port-forward svc/{{ include "doku.fullname" . }} <local-port>:{{ .Values.service.port }} --namespace {{ .Release.Namespace }}
 
-    The Doku Client URL will be: http://127.0.0.1:<local-port> (after you've started port-forwarding)
-  
-  For Doku Ingester
-  
-    kubectl port-forward svc/{{ include "doku.fullname" . }}-ingester <local-port>:{{ .Values.ingester.service.port }} --namespace {{ .Release.Namespace }}
-
-    The Doku Ingester URL will be: http://127.0.0.1:<local-port> (after you've started port-forwarding)
+The Doku URL will be: http://127.0.0.1:<local-port> (after you've started port-forwarding)
 
 {{- end }}
 
@@ -92,24 +70,13 @@ Use the following CURL command to create your first API key.
 
 A JSON response containing your new API key will be returned. Store this key securely.
 
-Alternatively, you can generate the API key by logging into the Doku Client UI.
-
 ---------------------------------------------------------------------------------
 SENDING LLM OBSERVABILITY DATA TO DOKU
 ---------------------------------------------------------------------------------
 
-Once you have your API key and Doku Ingester Url, you can configure the `dokumetry` SDKs in your LLM application to automatically send LLM observability data to your Doku instance.
+Once you have your API key and DOKU Url, you can configure the `dokumetry` SDKs in your LLM application to automatically send LLM observability data to your Doku instance.
 
 - Python SDK: https://www.github.com/dokulabs/dokumetry-python
 - Node SDK: https://www.github.com/dokulabs/dokumetry-node
-
----------------------------------------------------------------------------------
-LOGIN TO DOKU CLIENT UI AND START MONITORING!
----------------------------------------------------------------------------------
-
-Login to Doku Client using the default credentials and start monitoring and evaluating your LLM Applications
-
-- Email as 'user@dokulabs.com'
-- Password as 'dokulabsuser'
 
 For any questions or issues, please refer to the chart README or contact our support team.
