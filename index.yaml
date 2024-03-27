@@ -3,6 +3,20 @@ entries:
   doku:
   - apiVersion: v2
     appVersion: 0.1.3
+    created: "2024-03-27T08:21:42.06456396Z"
+    description: A Helm chart for Doku
+    digest: 86eba5ae2b9c3410162fe7ccf15a13aefd50c969a65aad84519e88d04e847451
+    icon: https://raw.githubusercontent.com/dokulabs/.github/main/profile/assets/logo-orange-bg.jpg
+    maintainers:
+    - email: patcher99@dokulabs.com
+      name: patcher99
+    name: doku
+    type: application
+    urls:
+    - https://github.com/dokulabs/helm/releases/download/doku-0.1.4/doku-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
+    appVersion: 0.1.3
     created: "2024-03-23T11:30:49.473916178Z"
     description: A Helm chart for Doku
     digest: 5889416e2919f9f658a7538b4172ddbb16d12f858f142edcf7a52c9fde8f737a
@@ -270,4 +284,4 @@ entries:
     urls:
     - https://github.com/dokulabs/helm/releases/download/doku-0.0.6/doku-0.0.6.tgz
     version: 0.0.6
-generated: "2024-03-23T11:30:49.474016735Z"
+generated: "2024-03-27T08:21:42.064691098Z"
