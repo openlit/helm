@@ -27,7 +27,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ .Values.clickhouse.auth.secret.name }}
-              key: {{ default "DOKU" .Values.clickhouse.auth.secret.passwordKey }}
+              key: {{ default "OPENLIT" .Values.clickhouse.auth.secret.passwordKey }}
         - name: CLICKHOUSE_USER
           valueFrom:
             secretKeyRef:

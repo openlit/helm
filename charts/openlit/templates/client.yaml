@@ -1,0 +1,204 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openlit-collector-config
+  labels:
+    app: {{ include "openlit.fullname" . }}
+    component: opentelemetry-collector
+data:
+  opentelemetry-collector-config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: ${env:OTEL_POD_IP}:4317
+          http:
+            endpoint: ${env:OTEL_POD_IP}:4318
+    processors:
+      batch:
+      memory_limiter:
+        limit_mib: 1500
+        spike_limit_mib: 512
+        check_interval: 5s
+    extensions:
+      zpages: {}
+    exporters:
+      clickhouse:
+        endpoint: tcp://${env:INIT_DB_HOST}:${env:INIT_DB_PORT}?dial_timeout=10s
+        database: ${env:INIT_DB_DATABASE}
+        username: ${env:INIT_DB_USERNAME}
+        password: ${env:INIT_DB_PASSWORD}
+        ttl: 730h
+        logs_table_name: otel_logs
+        traces_table_name: otel_traces
+        metrics_table_name: otel_metrics
+        timeout: 5s
+        retry_on_failure:
+          enabled: true
+          initial_interval: 5s
+          max_interval: 30s
+          max_elapsed_time: 300s
+    service:
+      pipelines:
+        logs:
+          receivers: [ otlp ]
+          processors: [ batch ]
+          exporters: [ clickhouse ]
+        traces:
+          receivers: [ otlp ]
+          processors: [memory_limiter, batch]
+          exporters: [ clickhouse ]
+        metrics:
+          receivers: [ otlp ]
+          processors: [memory_limiter, batch]
+          exporters: [ clickhouse ]
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "openlit.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceName: {{ include "openlit.fullname" . }}
+  replicas: {{ .Values.openlit.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "openlit.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "openlit.fullname" . }}
+    spec:
+      containers:
+      - name: openlit
+        image: "{{ .Values.openlit.image.repository }}:{{ .Values.openlit.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.openlit.image.pullPolicy }}
+        ports:
+          - containerPort: {{ .Values.openlit.service.port }}
+        env:
+          {{- if .Values.clickhouse.enabled }}
+          - name: INIT_DB_HOST
+            value: "{{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local"
+          {{- else }}
+          - name: INIT_DB_HOST
+            value: "{{ .Values.openlit.config.database.host }}"
+          {{- end }}
+          - name: INIT_DB_PORT
+            value: "{{ .Values.openlit.config.database.port }}"
+          - name: INIT_DB_DATABASE
+            value: "{{ .Values.openlit.config.database.name }}"
+          - name: SQLITE_DATABASE_URL
+            value: "{{ .Values.openlit.config.sqlite_url }}"
+          {{ if .Values.openlit.config.secret }}
+          - name: INIT_DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.openlit.config.secret.name }}
+                key: {{ .Values.openlit.config.secret.usernameKey }}
+          - name: INIT_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.openlit.config.secret.name }}
+                key: {{ .Values.openlit.config.secret.passwordKey }}
+          {{ else }}
+          - name: INIT_DB_USERNAME
+            value: "{{ .Values.openlit.config.database.username }}"
+          - name: INIT_DB_PASSWORD
+            value: "{{ .Values.openlit.config.database.password }}"
+          {{- end }}
+        resources:
+          {{- toYaml .Values.openlit.resources | nindent 10 }}
+      - name: opentelemetry-collector
+        image: otel/opentelemetry-collector-contrib:0.94.0
+        command:
+          - "/otelcol-contrib"
+          - "--config=/conf/opentelemetry-collector-config.yaml"
+        ports:
+          - containerPort: 4317
+          - containerPort: 4318
+        env:
+          - name: OTEL_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: GOMEMLIMIT
+            value: "1600MiB"
+          {{- if .Values.clickhouse.enabled }}
+          - name: INIT_DB_HOST
+            value: "{{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local"
+          {{- else }}
+          - name: INIT_DB_HOST
+            value: "{{ .Values.openlit.config.database.host }}"
+          {{- end }}
+          - name: INIT_DB_PORT
+            value: "9000"
+          - name: INIT_DB_DATABASE
+            value: "{{ .Values.openlit.config.database.name }}"
+          {{ if .Values.openlit.config.secret }}
+          - name: INIT_DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.openlit.config.secret.name }}
+                key: {{ .Values.openlit.config.secret.usernameKey }}
+          - name: INIT_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.openlit.config.secret.name }}
+                key: {{ .Values.openlit.config.secret.passwordKey }}
+          {{ else }}
+          - name: INIT_DB_USERNAME
+            value: "{{ .Values.openlit.config.database.username }}"
+          - name: INIT_DB_PASSWORD
+            value: "{{ .Values.openlit.config.database.password }}"
+          {{- end }}
+        volumeMounts:
+          - name: opentelemetry-collector-config-vol
+            mountPath: /conf
+      volumes:
+        - name: opentelemetry-collector-config-vol
+          configMap:
+            name: openlit-collector-config
+            items:
+              - key: opentelemetry-collector-config
+                path: opentelemetry-collector-config.yaml
+      imagePullSecrets:
+        {{- range .Values.openlit.imagePullSecrets }}
+        - name: {{ . }}
+        {{- end }}
+      nodeSelector:
+        {{ toYaml .Values.openlit.nodeSelector | nindent 8 }}
+      tolerations:
+        {{ toYaml .Values.openlit.tolerations | nindent 8 }}
+      affinity:
+        {{ toYaml .Values.openlit.affinity | nindent 8 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "openlit.fullname" . }}
+  labels:
+    app: {{ include "openlit.fullname" . }}
+spec:
+  type: {{ .Values.openlit.service.type }}
+  ports:
+    - name: openlit-app # Name for the application port
+      port: {{ .Values.openlit.service.port }} # Assuming this is 3000 as per your requirement
+      targetPort: {{ .Values.openlit.service.port }}
+      protocol: TCP
+    - name: otlp-grpc # Name for the OpenTelemetry gRPC port
+      port: 4317 # Port exposed for OTLP gRPC
+      targetPort: 4317
+      protocol: TCP
+    - name: otlp-http # Name for the OpenTelemetry HTTP port
+      port: 4318 # Port exposed for OTLP HTTP
+      targetPort: 4318
+      protocol: TCP
+    - name: metrics # Name for the metrics querying port
+      port: 8888 # Port exposed for querying metrics
+      targetPort: 8888
+      protocol: TCP
+  selector:
+    app: {{ include "openlit.fullname" . }}
+  sessionAffinity: {{ .Values.openlit.service.sessionAffinity }}
