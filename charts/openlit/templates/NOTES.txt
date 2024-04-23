@@ -1,4 +1,4 @@
-{{- $service := .Values.openlit.service.type -}}
+{{- $service := .Values.service.type -}}
 
 ---------------------------------------------------------------------------------
 THANK YOU FOR INSTALLING {{ .Chart.Name | upper }}!
@@ -47,7 +47,7 @@ OpenLIT has been exposed via a ClusterIP Service.
 
 To access your OpenLIT installation from your local machine, you will need to forward the service port:
 
-  kubectl port-forward svc/{{ include "openlit.fullname" . }} <local-port>:{{ .Values.openlit.service.port }} --namespace {{ .Release.Namespace }}
+  kubectl port-forward svc/{{ include "openlit.fullname" . }} <local-port>:{{ .Values.service.port }} --namespace {{ .Release.Namespace }}
 
   The OpenLIT URL will be: http://127.0.0.1:<local-port> (after you've started port-forwarding)
 
@@ -57,7 +57,7 @@ To access your OpenLIT installation from your local machine, you will need to fo
 SENDING LLM OBSERVABILITY DATA TO OPENLIT
 ---------------------------------------------------------------------------------
 
-Once you have your OpenTelemetry Collector's HTTP endpoint, you can configure the `openlit` SDKs in your LLM application to automatically send LLM observability data to your the OpenTelemetry Collector.
+Once you have your OpenLIT URL, you can configure the `openlit` SDKs in your LLM application to automatically send LLM observability data to OpenLIT at the `4318` port.
 
 - Python SDK: https://github.com/openlit/openlit/tree/main/sdk/python
 
@@ -65,7 +65,7 @@ Once you have your OpenTelemetry Collector's HTTP endpoint, you can configure th
 LOGIN TO OPENLIT UI AND START MONITORING!
 ---------------------------------------------------------------------------------
 
-Login to OpenLIT using the default credentials and start monitoring and evaluating your LLM Applications
+Login to OpenLIT using the default credentials and start monitoring and evaluating your LLM Applications using OpenTelemetry.
 
 - Email as 'user@openlit.op'
 - Password as 'openlituser'

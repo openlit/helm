@@ -101,24 +101,24 @@ The following table lists the configurable parameters of the OpenLIT chart and t
 |----------------------------------------|-----------------------------------------------------------------------------------------------------|--------------------------------------|
 | `nameOverride`                         | Overrides the default name for the release.                                                        | `""`                                 |
 | `fullnameOverride`                     | Overrides the default fullname for the release.                                                    | `""`                                 |
-| `openlit.replicaCount`                 | Number of replicas                                                                                  | `1`                                  |
-| `openlit.image.repository`             | Image repository                                                                                    | `"ghcr.io/patcher9/openlit"`         |
-| `openlit.image.pullPolicy`             | Image pull policy                                                                                   | `"IfNotPresent"`                     |
-| `openlit.image.tag`                    | Image tag (overrides the chart appVersion)                                                         | `"0.0.6"`                            |
-| `openlit.imagePullSecrets`             | List of secrets containing credentials to pull images                                              | `[]`                                 |
-| `openlit.service.type`                 | Type of service                                                                                     | `LoadBalancer`                       |
-| `openlit.service.port`                 | Port on which the service is exposed                                                                | `3000`                               |
-| `openlit.service.sessionAffinity`      | Session affinity configuration                                                                      | `None`                               |
-| `openlit.resources.limits.cpu`         | CPU limit                                                                                           | `1000m`                              |
-| `openlit.resources.limits.memory`      | Memory limit                                                                                        | `1280Mi`                             |
-| `openlit.resources.requests.cpu`       | CPU request                                                                                         | `100m`                               |
-| `openlit.resources.requests.memory`    | Memory request                                                                                      | `128Mi`                              |
-| `openlit.config.sqlite_url`            | SQLite database URL                                                                                 | `file:/app/client/data/data.db`     |
-| `openlit.config.database.name`         | OpenLIT Backend Database name                                                                       | `openlit`                            |
-| `openlit.config.database.username`     | Database username (skip if `secrets.existingSecret` is true)                                        | `default`                            |
-| `openlit.config.database.password`     | Database password (skip if `secrets.existingSecret` is true)                                        | `OPENLIT`                            |
-| `openlit.config.database.host`         | Database host                                                                                       | `"openlit-db.default.svc.cluster.local"`|
-| `openlit.config.database.port`         | Database port                                                                                       | `"8123"`                             |
+| `replicaCount`                 | Number of replicas                                                                                  | `1`                                  |
+| `image.repository`             | Image repository                                                                                    | `"ghcr.io/patcher9/openlit"`         |
+| `image.pullPolicy`             | Image pull policy                                                                                   | `"IfNotPresent"`                     |
+| `image.tag`                    | Image tag (overrides the chart appVersion)                                                         | `"0.0.6"`                            |
+| `imagePullSecrets`             | List of secrets containing credentials to pull images                                              | `[]`                                 |
+| `service.type`                 | Type of service                                                                                     | `LoadBalancer`                       |
+| `service.port`                 | Port on which the service is exposed                                                                | `3000`                               |
+| `service.sessionAffinity`      | Session affinity configuration                                                                      | `None`                               |
+| `resources.limits.cpu`         | CPU limit                                                                                           | `1000m`                              |
+| `resources.limits.memory`      | Memory limit                                                                                        | `1280Mi`                             |
+| `resources.requests.cpu`       | CPU request                                                                                         | `100m`                               |
+| `resources.requests.memory`    | Memory request                                                                                      | `128Mi`                              |
+| `config.sqlite_url`            | SQLite database URL                                                                                 | `file:/app/client/data/data.db`     |
+| `config.database.name`         | OpenLIT Backend Database name                                                                       | `openlit`                            |
+| `config.database.username`     | Database username (skip if `secrets.existingSecret` is true)                                        | `default`                            |
+| `config.database.password`     | Database password (skip if `secrets.existingSecret` is true)                                        | `OPENLIT`                            |
+| `config.database.host`         | Database host                                                                                       | `"openlit-db.default.svc.cluster.local"`|
+| `config.database.port`         | Database port                                                                                       | `"8123"`                             |
 | `clickhouse.enabled`                   | Enable/disable the ClickHouse database deployment                                                   | `true`                               |
 | `clickhouse.image.repository`          | ClickHouse Docker image repository                                                                  | `"clickhouse/clickhouse-server"`     |
 | `clickhouse.image.tag`                 | ClickHouse Docker image tag                                                                         | `24.2.2`                             |
@@ -142,8 +142,8 @@ You can adjust the OpenLIT configuration by specifying each parameter using the 
 
 ```bash
 helm install openlit \
-  --set openlit.service.type=NodePort \
-  --set openlit.service.port=3000 \
+  --set service.type=NodePort \
+  --set service.port=3000 \
   openlit/openlit
 ```
 

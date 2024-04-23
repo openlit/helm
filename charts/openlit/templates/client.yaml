@@ -62,7 +62,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   serviceName: {{ include "openlit.fullname" . }}
-  replicas: {{ .Values.openlit.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: {{ include "openlit.fullname" . }}
@@ -73,43 +73,43 @@ spec:
     spec:
       containers:
       - name: openlit
-        image: "{{ .Values.openlit.image.repository }}:{{ .Values.openlit.image.tag | default .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.openlit.image.pullPolicy }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-          - containerPort: {{ .Values.openlit.service.port }}
+          - containerPort: {{ .Values.service.port }}
         env:
           {{- if .Values.clickhouse.enabled }}
           - name: INIT_DB_HOST
             value: "{{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local"
           {{- else }}
           - name: INIT_DB_HOST
-            value: "{{ .Values.openlit.config.database.host }}"
+            value: "{{ .Values.config.database.host }}"
           {{- end }}
           - name: INIT_DB_PORT
-            value: "{{ .Values.openlit.config.database.port }}"
+            value: "{{ .Values.config.database.port }}"
           - name: INIT_DB_DATABASE
-            value: "{{ .Values.openlit.config.database.name }}"
+            value: "{{ .Values.config.database.name }}"
           - name: SQLITE_DATABASE_URL
-            value: "{{ .Values.openlit.config.sqlite_url }}"
-          {{ if .Values.openlit.config.secret }}
+            value: "{{ .Values.config.sqlite_url }}"
+          {{ if .Values.config.secret }}
           - name: INIT_DB_USERNAME
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.openlit.config.secret.name }}
-                key: {{ .Values.openlit.config.secret.usernameKey }}
+                name: {{ .Values.config.secret.name }}
+                key: {{ .Values.config.secret.usernameKey }}
           - name: INIT_DB_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.openlit.config.secret.name }}
-                key: {{ .Values.openlit.config.secret.passwordKey }}
+                name: {{ .Values.config.secret.name }}
+                key: {{ .Values.config.secret.passwordKey }}
           {{ else }}
           - name: INIT_DB_USERNAME
-            value: "{{ .Values.openlit.config.database.username }}"
+            value: "{{ .Values.config.database.username }}"
           - name: INIT_DB_PASSWORD
-            value: "{{ .Values.openlit.config.database.password }}"
+            value: "{{ .Values.config.database.password }}"
           {{- end }}
         resources:
-          {{- toYaml .Values.openlit.resources | nindent 10 }}
+          {{- toYaml .Values.resources | nindent 10 }}
       - name: opentelemetry-collector
         image: otel/opentelemetry-collector-contrib:0.94.0
         command:
@@ -124,28 +124,28 @@ spec:
             value: "{{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local"
           {{- else }}
           - name: INIT_DB_HOST
-            value: "{{ .Values.openlit.config.database.host }}"
+            value: "{{ .Values.config.database.host }}"
           {{- end }}
           - name: INIT_DB_PORT
             value: "9000"
           - name: INIT_DB_DATABASE
-            value: "{{ .Values.openlit.config.database.name }}"
-          {{ if .Values.openlit.config.secret }}
+            value: "{{ .Values.config.database.name }}"
+          {{ if .Values.config.secret }}
           - name: INIT_DB_USERNAME
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.openlit.config.secret.name }}
-                key: {{ .Values.openlit.config.secret.usernameKey }}
+                name: {{ .Values.config.secret.name }}
+                key: {{ .Values.config.secret.usernameKey }}
           - name: INIT_DB_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.openlit.config.secret.name }}
-                key: {{ .Values.openlit.config.secret.passwordKey }}
+                name: {{ .Values.config.secret.name }}
+                key: {{ .Values.config.secret.passwordKey }}
           {{ else }}
           - name: INIT_DB_USERNAME
-            value: "{{ .Values.openlit.config.database.username }}"
+            value: "{{ .Values.config.database.username }}"
           - name: INIT_DB_PASSWORD
-            value: "{{ .Values.openlit.config.database.password }}"
+            value: "{{ .Values.config.database.password }}"
           {{- end }}
         volumeMounts:
           - name: opentelemetry-collector-config-vol
@@ -158,15 +158,15 @@ spec:
               - key: opentelemetry-collector-config
                 path: opentelemetry-collector-config.yaml
       imagePullSecrets:
-        {{- range .Values.openlit.imagePullSecrets }}
+        {{- range .Values.imagePullSecrets }}
         - name: {{ . }}
         {{- end }}
       nodeSelector:
-        {{ toYaml .Values.openlit.nodeSelector | nindent 8 }}
+        {{ toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
-        {{ toYaml .Values.openlit.tolerations | nindent 8 }}
+        {{ toYaml .Values.tolerations | nindent 8 }}
       affinity:
-        {{ toYaml .Values.openlit.affinity | nindent 8 }}
+        {{ toYaml .Values.affinity | nindent 8 }}
 ---
 apiVersion: v1
 kind: Service
@@ -175,11 +175,11 @@ metadata:
   labels:
     app: {{ include "openlit.fullname" . }}
 spec:
-  type: {{ .Values.openlit.service.type }}
+  type: {{ .Values.service.type }}
   ports:
     - name: openlit
-      port: {{ .Values.openlit.service.port }} 
-      targetPort: {{ .Values.openlit.service.port }}
+      port: {{ .Values.service.port }} 
+      targetPort: {{ .Values.service.port }}
     - name: otel-otlp
       port: 4317
       targetPort: 4317
@@ -188,4 +188,4 @@ spec:
       targetPort: 4318
   selector:
     app: {{ include "openlit.fullname" . }}
-  sessionAffinity: {{ .Values.openlit.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
