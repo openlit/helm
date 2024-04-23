@@ -47,9 +47,9 @@ OpenLIT has been exposed via a ClusterIP Service.
 
 To access your OpenLIT installation from your local machine, you will need to forward the service port:
 
-  kubectl port-forward svc/{{ include "openlit.fullname" . }} <local-port>:{{ .Values.service.port }} --namespace {{ .Release.Namespace }}
+  kubectl port-forward svc/{{ include "openlit.fullname" . }} 3000:{{ .Values.service.port }} --namespace {{ .Release.Namespace }}
 
-  The OpenLIT URL will be: http://127.0.0.1:<local-port> (after you've started port-forwarding)
+  The OpenLIT URL will be: http://127.0.0.1:3000 (after you've started port-forwarding)
 
 {{- end }}
 
@@ -67,7 +67,7 @@ LOGIN TO OPENLIT UI AND START MONITORING!
 
 Login to OpenLIT using the default credentials and start monitoring and evaluating your LLM Applications using OpenTelemetry.
 
-- Email as 'user@openlit.op'
+- Email as 'user@openlit.io'
 - Password as 'openlituser'
 
 For any questions or issues, please refer to the chart README or contact our support team.

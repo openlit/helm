@@ -18,7 +18,7 @@ imagePullSecrets: []
 # Kubernetes Service configuration for the OpenLIT
 service:
   # Type of service (e.g., LoadBalancer, NodePort)
-  type: LoadBalancer
+  type: NodePort
   # Port on which the service is exposed
   port: 3000
   # Session affinity configuration
