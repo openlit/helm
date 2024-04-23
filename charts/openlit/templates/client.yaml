@@ -12,9 +12,9 @@ data:
       otlp:
         protocols:
           grpc:
-            endpoint: ${env:OTEL_POD_IP}:4317
+            endpoint: 0.0.0.0:4317
           http:
-            endpoint: ${env:OTEL_POD_IP}:4318
+            endpoint: 0.0.0.0:4318
     processors:
       batch:
       memory_limiter:
@@ -119,12 +119,6 @@ spec:
           - containerPort: 4317
           - containerPort: 4318
         env:
-          - name: OTEL_POD_IP
-            valueFrom:
-              fieldRef:
-                fieldPath: status.podIP
-          - name: GOMEMLIMIT
-            value: "1600MiB"
           {{- if .Values.clickhouse.enabled }}
           - name: INIT_DB_HOST
             value: "{{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local"
@@ -183,22 +177,15 @@ metadata:
 spec:
   type: {{ .Values.openlit.service.type }}
   ports:
-    - name: openlit-app # Name for the application port
-      port: {{ .Values.openlit.service.port }} # Assuming this is 3000 as per your requirement
+    - name: openlit
+      port: {{ .Values.openlit.service.port }} 
       targetPort: {{ .Values.openlit.service.port }}
-      protocol: TCP
-    - name: otlp-grpc # Name for the OpenTelemetry gRPC port
-      port: 4317 # Port exposed for OTLP gRPC
+    - name: otel-otlp
+      port: 4317
       targetPort: 4317
-      protocol: TCP
-    - name: otlp-http # Name for the OpenTelemetry HTTP port
-      port: 4318 # Port exposed for OTLP HTTP
+    - name: otel-http
+      port: 4318
       targetPort: 4318
-      protocol: TCP
-    - name: metrics # Name for the metrics querying port
-      port: 8888 # Port exposed for querying metrics
-      targetPort: 8888
-      protocol: TCP
   selector:
     app: {{ include "openlit.fullname" . }}
   sessionAffinity: {{ .Values.openlit.service.sessionAffinity }}

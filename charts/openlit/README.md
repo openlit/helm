@@ -84,6 +84,43 @@ With OpenLIT, you get a simple, powerful view into important info like how much 
 
 The following table lists the configurable parameters of the OpenLIT chart and their default values.
 
+| Variable Name                          | Description                                                                                         | Default Value                        |
+|----------------------------------------|-----------------------------------------------------------------------------------------------------|--------------------------------------|
+| `nameOverride`                         | Overrides the default name for the release.                                                        | `""`                                 |
+| `fullnameOverride`                     | Overrides the default fullname for the release.                                                    | `""`                                 |
+| `openlit.replicaCount`                 | Number of replicas                                                                                  | `1`                                  |
+| `openlit.image.repository`             | Image repository                                                                                    | `"ghcr.io/patcher9/openlit"`         |
+| `openlit.image.pullPolicy`             | Image pull policy                                                                                   | `"IfNotPresent"`                     |
+| `openlit.image.tag`                    | Image tag (overrides the chart appVersion)                                                         | `"0.0.6"`                            |
+| `openlit.imagePullSecrets`             | List of secrets containing credentials to pull images                                              | `[]`                                 |
+| `openlit.service.type`                 | Type of service                                                                                     | `LoadBalancer`                       |
+| `openlit.service.port`                 | Port on which the service is exposed                                                                | `3000`                               |
+| `openlit.service.sessionAffinity`      | Session affinity configuration                                                                      | `None`                               |
+| `openlit.resources.limits.cpu`         | CPU limit                                                                                           | `1000m`                              |
+| `openlit.resources.limits.memory`      | Memory limit                                                                                        | `1280Mi`                             |
+| `openlit.resources.requests.cpu`       | CPU request                                                                                         | `100m`                               |
+| `openlit.resources.requests.memory`    | Memory request                                                                                      | `128Mi`                              |
+| `openlit.config.sqlite_url`            | SQLite database URL                                                                                 | `file:/app/client/data/data.db`     |
+| `openlit.config.database.name`         | OpenLIT Backend Database name                                                                       | `openlit`                            |
+| `openlit.config.database.username`     | Database username (skip if `secrets.existingSecret` is true)                                        | `default`                            |
+| `openlit.config.database.password`     | Database password (skip if `secrets.existingSecret` is true)                                        | `OPENLIT`                            |
+| `openlit.config.database.host`         | Database host                                                                                       | `"openlit-db.default.svc.cluster.local"`|
+| `openlit.config.database.port`         | Database port                                                                                       | `"8123"`                             |
+| `clickhouse.enabled`                   | Enable/disable the ClickHouse database deployment                                                   | `true`                               |
+| `clickhouse.image.repository`          | ClickHouse Docker image repository                                                                  | `"clickhouse/clickhouse-server"`     |
+| `clickhouse.image.tag`                 | ClickHouse Docker image tag                                                                         | `24.2.2`                             |
+| `clickhouse.image.pullPolicy`          | ClickHouse image pull policy                                                                        | `"IfNotPresent"`                     |
+| `clickhouse.auth.user`                 | ClickHouse username (skip if `clickhouse.secret` set)                                               | `default`                            |
+| `clickhouse.auth.password`             | ClickHouse password (skip if `clickhouse.secret` set)                                               | `OPENLIT`                            |
+| `clickhouse.service.type`              | Kubernetes Service configuration for ClickHouse                                                     | `LoadBalancer`                       |
+| `clickhouse.persistence.accessMode`    | Access mode for the persistent volume                                                               | `ReadWriteOnce`                      |
+| `clickhouse.persistence.size`          | Size of the persistent volume                                                                       | `10Gi`                               |
+| `ingress.enabled`                      | Toggle to enable/disable ingress for OpenLIT                                                        | `false`                              |
+| `ingress.className`                    | Ingress class name                                                                                  | `""`                                 |
+| `ingress.hosts[0].host`                | Hostname for the ingress                                                                            | `chart-example.local`                |
+| `ingress.hosts[0].paths[0].path`       | Path for the ingress                                                                                | `/`                                  |
+| `ingress.hosts[0].paths[0].pathType`   | Type of the ingress path                                                                            | `ImplementationSpecific`             |
+
 **Note**: Although the table above shows the parameters. Refer to [`values.yaml`](values.yaml) for a full list.
 
 ### Configuring OpenLIT

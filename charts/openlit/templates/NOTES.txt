@@ -8,22 +8,22 @@ Your OpenLIT deployment has been installed and is ready for use!
 
 {{- if eq $service "LoadBalancer" }}
 ---------------------------------------------------------------------------------
-DOKU SERVICE DETAILS: LOADBALANCER
+OPENLIT SERVICE DETAILS: LOADBALANCER
 ---------------------------------------------------------------------------------
 
 OpenLIT has been exposed via a LoadBalancer Service.
 
 You can find the external IP of your OpenLIT service by running:
 
-  kubectl get svc -l "app={{ include "openlit.fullname" . }}-client" --namespace {{ .Release.Namespace }}
+  kubectl get svc -l "app={{ include "openlit.fullname" . }}" --namespace {{ .Release.Namespace }}
 
-  The OpenLIT Client URL will be: http://<LoadBalancer-IP>:3000/
+  The OpenLIT URL will be: http://<LoadBalancer-IP>:3000/
 
 It may take a few minutes for the LoadBalancer IP to be available.
 
 {{- else if eq $service "NodePort" }}
 ---------------------------------------------------------------------------------
-DOKU SERVICE DETAILS: NODEPORT
+OPENLIT SERVICE DETAILS: NODEPORT
 ---------------------------------------------------------------------------------
 
 OpenLIT has been exposed via a NodePort Service.
@@ -34,20 +34,20 @@ To find the IP address of the node, execute:
 
 To find the NodePort, execute:
 
-  kubectl get svc --namespace {{ .Release.Namespace }} -l "app={{ include "openlit.fullname" . }}-client" -o jsonpath='{.items[0].spec.ports[0].nodePort}'
+  kubectl get svc --namespace {{ .Release.Namespace }} -l "app={{ include "openlit.fullname" . }}" -o jsonpath='{.items[0].spec.ports[0].nodePort}'
 
-  Use the node's IP and the NodePort value to construct the OpenLIT Client URL: http://<Node-IP>:<NodePort>
+  Use the node's IP and the NodePort value to construct the OpenLIT URL: http://<Node-IP>:<NodePort>
 
 {{- else if eq $service "ClusterIP" }}
 ---------------------------------------------------------------------------------
-DOKU SERVICE DETAILS: CLUSTERIP
+OPENLIT SERVICE DETAILS: CLUSTERIP
 ---------------------------------------------------------------------------------
 
 OpenLIT has been exposed via a ClusterIP Service.
 
 To access your OpenLIT installation from your local machine, you will need to forward the service port:
 
-  kubectl port-forward svc/{{ include "openlit.fullname" . }}-client <local-port>:{{ .Values.client.service.port }} --namespace {{ .Release.Namespace }}
+  kubectl port-forward svc/{{ include "openlit.fullname" . }} <local-port>:{{ .Values.openlit.service.port }} --namespace {{ .Release.Namespace }}
 
   The OpenLIT URL will be: http://127.0.0.1:<local-port> (after you've started port-forwarding)
 
