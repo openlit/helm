@@ -284,4 +284,19 @@ entries:
     urls:
     - https://github.com/dokulabs/helm/releases/download/doku-0.0.6/doku-0.0.6.tgz
     version: 0.0.6
-generated: "2024-03-27T08:21:42.064691098Z"
+  openlit:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2024-04-26T05:15:38.871162934Z"
+    description: A Helm chart for OpenLIT
+    digest: 3f8c1792d06f981f0460d60854adc97fbe57fe8cf7e73fbabaa799ba00a14777
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    maintainers:
+    - email: patcher9@openlit.io
+      name: patcher9
+    name: openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-1.0.0/openlit-1.0.0.tgz
+    version: 1.0.0
+generated: "2024-04-26T05:15:38.871215973Z"
