@@ -1,0 +1,73 @@
+{{- $service := .Values.service.type -}}
+
+---------------------------------------------------------------------------------
+THANK YOU FOR INSTALLING {{ .Chart.Name | upper }}!
+---------------------------------------------------------------------------------
+
+Your OpenLIT deployment has been installed and is ready for use!
+
+{{- if eq $service "LoadBalancer" }}
+---------------------------------------------------------------------------------
+OPENLIT SERVICE DETAILS: LOADBALANCER
+---------------------------------------------------------------------------------
+
+OpenLIT has been exposed via a LoadBalancer Service.
+
+You can find the external IP of your OpenLIT service by running:
+
+  kubectl get svc -l "app={{ include "openlit.fullname" . }}" --namespace {{ .Release.Namespace }}
+
+  The OpenLIT URL will be: http://<LoadBalancer-IP>:3000/
+
+It may take a few minutes for the LoadBalancer IP to be available.
+
+{{- else if eq $service "NodePort" }}
+---------------------------------------------------------------------------------
+OPENLIT SERVICE DETAILS: NODEPORT
+---------------------------------------------------------------------------------
+
+OpenLIT has been exposed via a NodePort Service.
+
+To find the IP address of the node, execute:
+
+  kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}'
+
+To find the NodePort, execute:
+
+  kubectl get svc --namespace {{ .Release.Namespace }} -l "app={{ include "openlit.fullname" . }}" -o jsonpath='{.items[0].spec.ports[0].nodePort}'
+
+  Use the node's IP and the NodePort value to construct the OpenLIT URL: http://<Node-IP>:<NodePort>
+
+{{- else if eq $service "ClusterIP" }}
+---------------------------------------------------------------------------------
+OPENLIT SERVICE DETAILS: CLUSTERIP
+---------------------------------------------------------------------------------
+
+OpenLIT has been exposed via a ClusterIP Service.
+
+To access your OpenLIT installation from your local machine, you will need to forward the service port:
+
+  kubectl port-forward svc/{{ include "openlit.fullname" . }} 3000:{{ .Values.service.port }} --namespace {{ .Release.Namespace }}
+
+  The OpenLIT URL will be: http://127.0.0.1:3000 (after you've started port-forwarding)
+
+{{- end }}
+
+---------------------------------------------------------------------------------
+SENDING LLM OBSERVABILITY DATA TO OPENLIT
+---------------------------------------------------------------------------------
+
+Once you have your OpenLIT URL, you can configure the `openlit` SDKs in your LLM application to automatically send LLM observability data to OpenLIT at the `4318` port.
+
+- Python SDK: https://github.com/openlit/openlit/tree/main/sdk/python
+
+---------------------------------------------------------------------------------
+LOGIN TO OPENLIT UI AND START MONITORING!
+---------------------------------------------------------------------------------
+
+Login to OpenLIT using the default credentials and start monitoring and evaluating your LLM Applications using OpenTelemetry.
+
+- Email as 'user@openlit.io'
+- Password as 'openlituser'
+
+For any questions or issues, please refer to the chart README or contact our support team.
