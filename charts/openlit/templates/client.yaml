@@ -5,7 +5,8 @@ metadata:
   name: openlit-collector-config
   labels:
     app: {{ include "openlit.fullname" . }}
-    component: opentelemetry-collector
+    {{- include "openlit.labels" . | nindent 4 }}
+    app.kubernetes.io/component: opentelemetry-collector
 data:
   opentelemetry-collector-config: |
     receivers:
@@ -58,6 +59,10 @@ data:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+  labels:
+    app: {{ include "openlit.fullname" . }}
+    {{- include "openlit.labels" . | nindent 4 }}
+    app.kubernetes.io/component: openlit
   name: {{ include "openlit.fullname" . }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -66,10 +71,14 @@ spec:
   selector:
     matchLabels:
       app: {{ include "openlit.fullname" . }}
+      {{- include "openlit.selectorLabels" . | nindent 6 }}
+    app.kubernetes.io/component: openlit
   template:
     metadata:
       labels:
         app: {{ include "openlit.fullname" . }}
+        {{- include "openlit.labels" . | nindent 8 }}
+        app.kubernetes.io/component: openlit
     spec:
       containers:
       - name: openlit
@@ -174,6 +183,8 @@ metadata:
   name: {{ include "openlit.fullname" . }}
   labels:
     app: {{ include "openlit.fullname" . }}
+    {{- include "openlit.labels" . | nindent 4 }}
+    app.kubernetes.io/component: openlit
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -188,4 +199,6 @@ spec:
       targetPort: 4318
   selector:
     app: {{ include "openlit.fullname" . }}
+    {{- include "openlit.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: openlit
   sessionAffinity: {{ .Values.service.sessionAffinity }}

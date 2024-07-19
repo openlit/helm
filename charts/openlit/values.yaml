@@ -3,6 +3,10 @@ nameOverride: ""
 # Overrides the default fullname for the release.
 fullnameOverride: ""
 
+# Additional labels to add to all resources.
+additionalLabels: {}
+  # my-label: my-value
+
 # Number of replicas
 replicaCount: 1
 
