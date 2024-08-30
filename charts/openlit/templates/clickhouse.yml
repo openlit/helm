@@ -1,3 +1,4 @@
+{{- if .Values.clickhouse.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -85,3 +86,4 @@ spec:
     app: {{ .Release.Name }}-db
     {{- include "openlit.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: database
+{{- end }}
