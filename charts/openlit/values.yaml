@@ -31,7 +31,7 @@ service:
 # Resource limit and request configuration for the OpenLIT pod
 resources:
   limits:
-    cpu: 1
+    cpu: '1'
     memory: 1280Mi
   requests:
     cpu: 100m

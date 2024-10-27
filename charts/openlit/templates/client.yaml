@@ -5,7 +5,7 @@ metadata:
   name: openlit-collector-config
   labels:
     app: {{ include "openlit.fullname" . }}
-    {{- include "openlit.labels" . | nindent 4 }}
+    # {{- include "openlit.labels" . | nindent 4 }}
     app.kubernetes.io/component: opentelemetry-collector
 data:
   opentelemetry-collector-config: |
@@ -62,7 +62,7 @@ metadata:
   labels:
     app: {{ include "openlit.fullname" . }}
     {{- include "openlit.labels" . | nindent 4 }}
-    # app.kubernetes.io/component: openlit
+    app.kubernetes.io/component: openlit
   name: {{ include "openlit.fullname" . }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -72,7 +72,7 @@ spec:
     matchLabels:
       app: {{ include "openlit.fullname" . }}
       {{- include "openlit.selectorLabels" . | nindent 6 }}
-    app.kubernetes.io/component: openlit
+    # app.kubernetes.io/component: openlit
   template:
     metadata:
       labels:
