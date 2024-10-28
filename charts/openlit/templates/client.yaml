@@ -5,7 +5,7 @@ metadata:
   name: openlit-collector-config
   labels:
     app: {{ include "openlit.fullname" . }}
-    {{- include "openlit.labels" . | nindent 4 }}
+    # {{- include "openlit.labels" . | nindent 4 }}
     app.kubernetes.io/component: opentelemetry-collector
 data:
   opentelemetry-collector-config: |
@@ -72,7 +72,7 @@ spec:
     matchLabels:
       app: {{ include "openlit.fullname" . }}
       {{- include "openlit.selectorLabels" . | nindent 6 }}
-    app.kubernetes.io/component: openlit
+    # app.kubernetes.io/component: openlit
   template:
     metadata:
       labels:
@@ -166,14 +166,22 @@ spec:
             items:
               - key: opentelemetry-collector-config
                 path: opentelemetry-collector-config.yaml
+      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- range .Values.imagePullSecrets }}
         - name: {{ . }}
         {{- end }}
+      {{- end }}
       nodeSelector:
+        {{- if .Values.nodeSelector }}
         {{ toYaml .Values.nodeSelector | nindent 8 }}
+        {{- else }}
+        kubernetes.io/os: linux
+        {{- end }}
+      {{- if .Values.tolerations }}
       tolerations:
-        {{ toYaml .Values.tolerations | nindent 8 }}
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
       affinity:
         {{ toYaml .Values.affinity | nindent 8 }}
 ---
