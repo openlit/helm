@@ -20,9 +20,6 @@ jobs:
         uses: azure/setup-helm@v4
         with:
           version: v3.12.1
-      
-      - name: Add Timescale Chart Repo
-        run: helm repo add timescale https://charts.timescale.com/
 
       - name: Update Chart Repositories
         run: helm repo update
