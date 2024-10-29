@@ -24,9 +24,6 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
 
-      - name: Add Timescale Chart Repo
-        run: helm repo add timescale https://charts.timescale.com/
-
       - name: Update Chart Dependencies
         run: helm repo update
 
