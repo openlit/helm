@@ -54,7 +54,7 @@ spec:
                 port:
                   number: {{ $svcPort }}
               {{- else }}
-              serviceName: {{ $fullName }}
+              serviceName: {{ include "openlit.fullname" . }}
               servicePort: {{ $svcPort }}
               {{- end }}
           {{- end }}
