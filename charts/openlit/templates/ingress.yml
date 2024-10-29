@@ -14,7 +14,7 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ include "openlit.fullname" . }}
   labels:
     app: {{ include "openlit.fullname" . }}
     {{- include "openlit.labels" . | nindent 4 }}
