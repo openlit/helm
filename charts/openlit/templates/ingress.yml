@@ -50,7 +50,7 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ include "openlit.fullname" . }}
+                name: openlit
                 port:
                   number: {{ $svcPort }}
               {{- else }}
