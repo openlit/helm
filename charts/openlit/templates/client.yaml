@@ -176,14 +176,16 @@ spec:
         {{- if .Values.nodeSelector }}
         {{ toYaml .Values.nodeSelector | nindent 8 }}
         {{- else }}
-        kubernetes.io/os: linux
+        kubernetes.io/arch: amd64
         {{- end }}
       {{- if .Values.tolerations }}
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
       {{- end }}
+      {{- if .Values.affinity }}
       affinity:
-        {{ toYaml .Values.affinity | nindent 8 }}
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service

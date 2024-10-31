@@ -121,7 +121,7 @@ clickhouse:
 # Ingress configuration (for exposing OpenLIT via an ingress)
 ingress:
   enabled: false
-  className: ""
+  className: "nginx"
   annotations: {}
   # kubernetes.io/ingress.class: nginx
   # kubernetes.io/tls-acme: "true"
@@ -130,7 +130,7 @@ ingress:
     paths:
     - path: /
       pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  tls:
+  - secretName: chart-example-tls
+    hosts:
+    - chart-example.local
