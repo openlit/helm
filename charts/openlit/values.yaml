@@ -72,6 +72,9 @@ config:
     host: "openlit-db.default.svc.cluster.local"
     port: "8123"
 
+  # Set to true or false for anonymous usage metrics. More info: https://docs.openlit.io/latest/anonymous-telemetry
+  usageMetrics: true
+
 # ClickHouse database configuration (used as the backend for OpenLIT)
 clickhouse:
   # Toggle to enable/disable the ClickHouse database deployment

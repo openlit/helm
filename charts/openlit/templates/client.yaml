@@ -87,6 +87,8 @@ spec:
         ports:
           - containerPort: {{ .Values.service.port }}
         env:
+          - name: TELEMETRY_ENABLED
+            value: "{{ .Values.config.usageMetrics }}"
           {{- if .Values.clickhouse.enabled }}
           - name: INIT_DB_HOST
             value: "{{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local"
