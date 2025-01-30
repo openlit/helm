@@ -1,0 +1,17 @@
+---------------------------------------------------------------------------------
+THANK YOU FOR INSTALLING {{ .Chart.Name | upper }}!
+---------------------------------------------------------------------------------
+
+{{- if .Values.config.otlp_endpoint }}
+
+Your OpenTelemetry GPU Collector has been deployed and will start sending GPU metrics to {{ .Values.config.otlp_endpoint }}!
+
+{{- else }}
+
+Your OpenTelemetry GPU Collector has been deployed but has not been configured to send GPU metrics to any OpenTelemetry endpoint.
+
+To configure the OpenTelemetry endpoint as the destination for the metrics, please set the `config.otlp_endpoint` value. Additionally, provide `cofnig.otlp_headers` if the destination requires authentication.
+
+{{- end }}
+
+

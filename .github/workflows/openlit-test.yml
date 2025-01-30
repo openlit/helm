@@ -1,10 +1,14 @@
-name: Helm Test
+name: OpenLIT Helm Test
 
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'charts/openlit/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'charts/openlit/**'
   workflow_dispatch:
 
 jobs:
@@ -20,9 +24,6 @@ jobs:
         uses: azure/setup-helm@v4
         with:
           version: v3.12.1
-      
-      - name: Add Timescale Chart Repo
-        run: helm repo add timescale https://charts.timescale.com/
 
       - name: Update Chart Repositories
         run: helm repo update

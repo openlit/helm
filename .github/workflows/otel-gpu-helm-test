@@ -1,0 +1,81 @@
+name: OTel GOU Collector Helm Test
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'charts/opentelemetry-gpu-collector/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'charts/opentelemetry-gpu-collector/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.12.1
+
+      - name: Update Chart Repositories
+        run: helm repo update
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          check-latest: true
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.6.1
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run chart-testing (lint)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct lint --target-branch ${{ github.event.repository.default_branch }}
+
+      - name: Create kind cluster
+        if: steps.list-changed.outputs.changed == 'true'
+        uses: helm/kind-action@v1.10.0
+
+      - name: Install Helm Chart in namespace `opentelemetry-gpu-collector`
+        if: steps.list-changed.outputs.changed == 'true'
+        run: helm install opentelemetry-gpu-collector ./charts/opentelemetry-gpu-collector --namespace opentelemetry-gpu-collector --create-namespace
+
+      - name: Wait for Pods to be ready in namespace `opentelemetry-gpu-collector`
+        if: steps.list-changed.outputs.changed == 'true'
+        run: sleep 120
+      
+      - name: Check Pod status in namespace `opentelemetry-gpu-collector`
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          kubectl get pods -n opentelemetry-gpu-collector
+
+      - name: Print logs for a pod with label `app=opentelemetry-gpu-collector`
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          kubectl logs -n opentelemetry-gpu-collector -l app=opentelemetry-gpu-collector
+      
+      - name: Check if OpenLIT pod is running
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          STATUS=$(kubectl get pods -l app=opentelemetry-gpu-collector -n opentelemetry-gpu-collector -o jsonpath="{.items[*].status.phase}")
+          if [ "$STATUS" != "Running" ]; then
+            echo "Pod is not in Running state: $STATUS"
+            exit 1
+          fi
+          echo "All pods are in the Running state."

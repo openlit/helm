@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "opentelemetry-gpu-collector.fullname" . }}
+  labels:
+    {{- include "opentelemetry-gpu-collector.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "opentelemetry-gpu-collector.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: "opentelemetry-gpu-collector"
+        {{- include "opentelemetry-gpu-collector.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: GPU_APPLICATION_NAME
+            value: "{{ .Values.config.application_name }}"
+          - name: GPU_ENVIRONMENT
+            value: "{{ .Values.config.environment }}"
+            
+          {{- if .Values.config.otlp_endpoint }}
+          - name: OTEL_EXPORTER_OTLP_ENDPOINT
+            value: "{{ .Values.config.otlp_endpoint }}"
+          {{- end }}
+          {{- if .Values.config.otlp_headers }}
+          - name: OTEL_EXPORTER_OTLP_HEADERS
+            value: "{{ .Values.config.otlp_headers }}"
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
