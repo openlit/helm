@@ -208,7 +208,7 @@ spec:
   ports:
     - name: openlit
       port: {{ .Values.service.port }} 
-      targetPort: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.target_port }}
     - name: otel-otlp
       port: 4317
       targetPort: 4317

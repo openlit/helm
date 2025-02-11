@@ -24,12 +24,17 @@ service:
   # Type of service (e.g., LoadBalancer, NodePort)
   type: LoadBalancer
   # Port on which the service is exposed
-  port: 3000
+  port: 443
+  # Port on which the openlit is running
+  target_port: 3000
   # Session affinity configuration
   sessionAffinity: None
 
   # Kubernetes service annotations
-  annotations: {}
+  annotations: 
+    service.beta.kubernetes.io/do-loadbalancer-name: "demo.openlit.io"
+    service.beta.kubernetes.io/do-loadbalancer-certificate-id: "05e25571-c9e5-4595-a26d-3765a320e75b"
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
 
 # Resource limit and request configuration for the OpenLIT pod
 resources:
@@ -80,7 +85,7 @@ config:
 
   # To use OpenLIT with email and password authentication, configure the following settings:
   preview_mode:
-    enabled: false
+    enabled: true
     account_email: user@openlit.io
     account_password: openlituser
 
@@ -120,7 +125,7 @@ clickhouse:
     # Access mode for the persistent volume
     accessMode: ReadWriteOnce
     # Size of the persistent volume
-    size: 500Gi
+    size: 99Gi
 
   # resources:
   #   limits:
