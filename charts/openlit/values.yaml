@@ -125,7 +125,7 @@ clickhouse:
     # Access mode for the persistent volume
     accessMode: ReadWriteOnce
     # Size of the persistent volume
-    size: 99Gi
+    size: 10Gi
 
   # resources:
   #   limits:
