@@ -31,10 +31,7 @@ service:
   sessionAffinity: None
 
   # Kubernetes service annotations
-  annotations: 
-    service.beta.kubernetes.io/do-loadbalancer-name: "demo.openlit.io"
-    service.beta.kubernetes.io/do-loadbalancer-certificate-id: "05e25571-c9e5-4595-a26d-3765a320e75b"
-    service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
+  annotations: {}
 
 # Resource limit and request configuration for the OpenLIT pod
 resources:
