@@ -24,7 +24,7 @@ service:
   # Type of service (e.g., LoadBalancer, NodePort)
   type: LoadBalancer
   # Port on which the service is exposed
-  port: 443
+  port: 3000
   # Port on which the openlit is running
   target_port: 3000
   # Session affinity configuration
