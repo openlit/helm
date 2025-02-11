@@ -28,6 +28,9 @@ service:
   # Session affinity configuration
   sessionAffinity: None
 
+  # Kubernetes service annotations
+  annotations: {}
+
 # Resource limit and request configuration for the OpenLIT pod
 resources:
   limits:

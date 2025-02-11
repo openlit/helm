@@ -199,6 +199,10 @@ metadata:
     app: {{ include "openlit.fullname" . }}
     {{- include "openlit.labels" . | nindent 4 }}
     app.kubernetes.io/component: openlit
+  {{- if .Values.service.annotations }}
+  annotations:
+    {{- toYaml .Values.service.annotations | nindent 8 }}
+  {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
