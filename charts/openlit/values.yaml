@@ -85,7 +85,7 @@ config:
 
   # To use OpenLIT with email and password authentication, configure the following settings:
   preview_mode:
-    enabled: true
+    enabled: false
     account_email: user@openlit.io
     account_password: openlituser
 
