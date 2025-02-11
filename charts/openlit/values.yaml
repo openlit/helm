@@ -28,6 +28,9 @@ service:
   # Session affinity configuration
   sessionAffinity: None
 
+  # Kubernetes service annotations
+  annotations: {}
+
 # Resource limit and request configuration for the OpenLIT pod
 resources:
   limits:
@@ -75,6 +78,12 @@ config:
   # Set to true or false for anonymous usage metrics. More info: https://docs.openlit.io/latest/anonymous-telemetry
   usageMetrics: true
 
+  # To use OpenLIT with email and password authentication, configure the following settings:
+  preview_mode:
+    enabled: false
+    account_email: user@openlit.io
+    account_password: openlituser
+
 # ClickHouse database configuration (used as the backend for OpenLIT)
 clickhouse:
   # Toggle to enable/disable the ClickHouse database deployment
@@ -111,7 +120,7 @@ clickhouse:
     # Access mode for the persistent volume
     accessMode: ReadWriteOnce
     # Size of the persistent volume
-    size: 10Gi
+    size: 500Gi
 
   # resources:
   #   limits:

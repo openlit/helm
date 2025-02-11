@@ -119,6 +119,12 @@ spec:
           - name: INIT_DB_PASSWORD
             value: "{{ .Values.config.database.password }}"
           {{- end }}
+          {{- if .Values.config.preview_mode.enabled }}
+          - name: DEMO_ACCOUNT_EMAIL
+            value: "{{ .Values.config.preview_mode.account_email }}"
+          - name: DEMO_ACCOUNT_PASSWORD
+            value: "{{ .Values.config.preview_mode.account_password }}"
+          {{- end }}
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
       - name: opentelemetry-collector
@@ -193,6 +199,10 @@ metadata:
     app: {{ include "openlit.fullname" . }}
     {{- include "openlit.labels" . | nindent 4 }}
     app.kubernetes.io/component: openlit
+  {{- if .Values.service.annotations }}
+  annotations:
+    {{- toYaml .Values.service.annotations | nindent 8 }}
+  {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
