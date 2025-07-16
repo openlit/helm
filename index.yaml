@@ -286,6 +286,20 @@ entries:
     version: 0.0.6
   openlit:
   - apiVersion: v2
+    appVersion: 1.14.0
+    created: "2025-07-16T19:26:24.40439843Z"
+    description: A Helm chart for OpenLIT
+    digest: a7ef5f32cbf5b95030d5e37077012b71a5dd9d461ef3eb19060bc0fc6b63c036
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    maintainers:
+    - email: patcher9@openlit.io
+      name: patcher9
+    name: openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-1.14.0/openlit-1.14.0.tgz
+    version: 1.14.0
+  - apiVersion: v2
     appVersion: 1.13.2
     created: "2025-06-11T19:32:00.817060189Z"
     description: A Helm chart for OpenLIT
@@ -509,4 +523,4 @@ entries:
     urls:
     - https://github.com/openlit/helm/releases/download/openlit-1.0.0/openlit-1.0.0.tgz
     version: 1.0.0
-generated: "2025-06-11T19:32:00.817222642Z"
+generated: "2025-07-16T19:26:24.404569693Z"
