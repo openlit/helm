@@ -21,9 +21,6 @@ jobs:
         with:
           version: v3.12.1
 
-      - name: Update Chart Repositories
-        run: helm repo update
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
