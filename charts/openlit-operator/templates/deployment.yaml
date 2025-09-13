@@ -46,6 +46,10 @@ spec:
         
         # Environment variables for operator configuration
         env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: {{ include "openlit-operator.namespace" . }}
         {{- include "openlit-operator.env" . | nindent 8 }}
         
         # Container ports
