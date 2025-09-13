@@ -287,6 +287,20 @@ entries:
   openlit:
   - apiVersion: v2
     appVersion: 1.14.4
+    created: "2025-09-13T11:18:12.143157316Z"
+    description: A Helm chart for OpenLIT
+    digest: 4c565cfa25909e4436b15499c0fd7d4aadeeb4fd1dd556367779879f88de8369
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    maintainers:
+    - email: patcher9@openlit.io
+      name: patcher9
+    name: openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-1.14.5/openlit-1.14.5.tgz
+    version: 1.14.5
+  - apiVersion: v2
+    appVersion: 1.14.4
     created: "2025-09-04T05:40:30.147456702Z"
     description: A Helm chart for OpenLIT
     digest: 6477253f31803b7dc95e2d37e7c8993a03ae9ab7dafa054123e316b5a301e782
@@ -537,4 +551,34 @@ entries:
     urls:
     - https://github.com/openlit/helm/releases/download/openlit-1.0.0/openlit-1.0.0.tgz
     version: 1.0.0
-generated: "2025-09-04T05:40:30.147648438Z"
+  openlit-operator:
+  - annotations:
+      category: Observability
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: latest
+    created: "2025-09-13T11:18:12.33571549Z"
+    description: OpenLIT Kubernetes Operator for Zero-Code AI/ML Application Instrumentation
+    digest: 8e8ffc107ddb0778a64e71c8b9b7ad5f3bd448b7035a3ddf0b0b95ca0c19caf3
+    home: https://openlit.io
+    keywords:
+    - observability
+    - opentelemetry
+    - ai
+    - ml
+    - instrumentation
+    - monitoring
+    - tracing
+    kubeVersion: '>=1.20.0'
+    maintainers:
+    - email: support@openlit.io
+      name: OpenLIT Team
+      url: https://openlit.io
+    name: openlit-operator
+    sources:
+    - https://github.com/openlit/openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-operator-0.1.0/openlit-operator-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-09-13T11:18:12.335861374Z"
