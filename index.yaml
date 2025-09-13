@@ -557,6 +557,35 @@ entries:
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: latest
+    created: "2025-09-13T11:36:35.728008426Z"
+    description: OpenLIT Kubernetes Operator for Zero-Code AI/ML Application Instrumentation
+    digest: 04cc19183d02ce10c154ab3c205fdb6421fa1738ec6e559a91f938e5ead75434
+    home: https://openlit.io
+    keywords:
+    - observability
+    - opentelemetry
+    - ai
+    - ml
+    - instrumentation
+    - monitoring
+    - tracing
+    kubeVersion: '>=1.20.0'
+    maintainers:
+    - email: support@openlit.io
+      name: OpenLIT Team
+      url: https://openlit.io
+    name: openlit-operator
+    sources:
+    - https://github.com/openlit/openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-operator-0.2.0/openlit-operator-0.2.0.tgz
+    version: 0.2.0
+  - annotations:
+      category: Observability
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: latest
     created: "2025-09-13T11:18:12.33571549Z"
     description: OpenLIT Kubernetes Operator for Zero-Code AI/ML Application Instrumentation
     digest: 8e8ffc107ddb0778a64e71c8b9b7ad5f3bd448b7035a3ddf0b0b95ca0c19caf3
@@ -610,4 +639,4 @@ entries:
     urls:
     - https://github.com/openlit/helm/releases/download/openlit-operator-0.0.1/openlit-operator-0.0.1.tgz
     version: 0.0.1
-generated: "2025-09-13T11:28:26.575952897Z"
+generated: "2025-09-13T11:36:35.728123232Z"
