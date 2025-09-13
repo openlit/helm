@@ -2,7 +2,7 @@ apiVersion: v2
 name: openlit-operator
 description: OpenLIT Kubernetes Operator for Zero-Code AI/ML Application Instrumentation
 type: application
-version: 0.1.0
+version: 0.0.1
 appVersion: "latest"
 home: https://openlit.io
 sources:
