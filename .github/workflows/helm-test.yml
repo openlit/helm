@@ -163,7 +163,7 @@ jobs:
         uses: helm/kind-action@v1.10.0
 
       - name: Run chart-testing (install)
-        run: ct install --charts charts/${{ matrix.chart }} --debug --helm-extra-set-args="--timeout=15m"
+        run: ct install --charts charts/${{ matrix.chart }} --debug
 
       - name: Verify pods are running (if ct install fails)
         if: failure()

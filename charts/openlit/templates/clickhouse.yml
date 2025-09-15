@@ -30,23 +30,6 @@ spec:
         ports:
         - containerPort: 9000
         - containerPort: 8123
-        readinessProbe:
-          httpGet:
-            path: /ping
-            port: 8123
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
-          successThreshold: 1
-          failureThreshold: 6
-        livenessProbe:
-          httpGet:
-            path: /ping
-            port: 8123
-          initialDelaySeconds: 30
-          periodSeconds: 30
-          timeoutSeconds: 10
-          failureThreshold: 3
         env:
         {{- if .Values.clickhouse.auth.secret.name }}
         - name: CLICKHOUSE_PASSWORD

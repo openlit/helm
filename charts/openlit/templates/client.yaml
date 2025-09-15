@@ -107,23 +107,6 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
           - containerPort: {{ .Values.service.port }}
-        readinessProbe:
-          httpGet:
-            path: /
-            port: {{ .Values.service.port }}
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
-          successThreshold: 1
-          failureThreshold: 6
-        livenessProbe:
-          httpGet:
-            path: /
-            port: {{ .Values.service.port }}
-          initialDelaySeconds: 60
-          periodSeconds: 30
-          timeoutSeconds: 10
-          failureThreshold: 3
         env:
           - name: TELEMETRY_ENABLED
             value: "{{ .Values.config.usageMetrics }}"
