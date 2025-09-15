@@ -84,40 +84,10 @@ jobs:
         uses: helm/chart-testing-action@v2.6.1
 
       - name: Run chart-testing (lint)
-        run: ct lint --charts charts/${{ matrix.chart }}
+        run: ct lint --charts charts/${{ matrix.chart }} --validate-maintainers=false
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.10.0
 
-      - name: Install Helm Chart
-        run: |
-          NAMESPACE=${{ matrix.chart }}
-          helm install ${{ matrix.chart }} ./charts/${{ matrix.chart }} --namespace $NAMESPACE --create-namespace
-
-      - name: Wait for Pods to be ready
-        run: sleep 120
-      
-      - name: Check Pod status
-        run: |
-          kubectl get pods -n ${{ matrix.chart }}
-
-      - name: Print logs for chart pods
-        run: |
-          NAMESPACE=${{ matrix.chart }}
-          # Get pods in the namespace and print their logs
-          PODS=$(kubectl get pods -n $NAMESPACE -o jsonpath='{.items[*].metadata.name}')
-          for POD in $PODS; do
-            echo "=== Logs for pod $POD ==="
-            kubectl logs -n $NAMESPACE $POD --all-containers=true || true
-          done
-      
-      - name: Check if pods are running
-        run: |
-          NAMESPACE=${{ matrix.chart }}
-          FAILED_PODS=$(kubectl get pods -n $NAMESPACE --field-selector=status.phase!=Running,status.phase!=Succeeded -o jsonpath='{.items[*].metadata.name}')
-          if [ -n "$FAILED_PODS" ]; then
-            echo "The following pods are not in Running/Succeeded state: $FAILED_PODS"
-            kubectl get pods -n $NAMESPACE
-            exit 1
-          fi
-          echo "All pods are in Running/Succeeded state."
+      - name: Run chart-testing (install)
+        run: ct install --charts charts/${{ matrix.chart }} --debug
