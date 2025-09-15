@@ -140,7 +140,7 @@ jobs:
         run: helm install ${{ matrix.chart }}-test ./charts/${{ matrix.chart }} --namespace ${{ matrix.chart }}-test --create-namespace
 
       - name: Wait for Pods to be ready
-        run: sleep 120
+        run: sleep 60
       
       - name: Check Pod status
         run: |
