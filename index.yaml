@@ -287,6 +287,32 @@ entries:
   openlit:
   - apiVersion: v2
     appVersion: 1.14.4
+    created: "2025-09-15T09:33:18.892043086Z"
+    description: A Helm chart for OpenLIT
+    digest: 9a90c4aa6a8a09eca6d7aac44d6cbb6e1f1a3c8e914182e346356e62563cc846
+    home: https://openlit.io
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    keywords:
+    - observability
+    - opentelemetry
+    - ai
+    - ml
+    - instrumentation
+    - monitoring
+    - tracing
+    maintainers:
+    - email: contact@openlit.io
+      name: OpenLIT Team
+      url: https://openlit.io
+    name: openlit
+    sources:
+    - https://github.com/openlit/openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-1.14.6/openlit-1.14.6.tgz
+    version: 1.14.6
+  - apiVersion: v2
+    appVersion: 1.14.4
     created: "2025-09-13T11:18:12.143157316Z"
     description: A Helm chart for OpenLIT
     digest: 4c565cfa25909e4436b15499c0fd7d4aadeeb4fd1dd556367779879f88de8369
@@ -552,6 +578,32 @@ entries:
     - https://github.com/openlit/helm/releases/download/openlit-1.0.0/openlit-1.0.0.tgz
     version: 1.0.0
   openlit-operator:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-09-15T09:33:19.042288862Z"
+    description: OpenLIT Kubernetes Operator for Zero-Code AI/ML Application Instrumentation
+    digest: 36440a171b67afb54f576c989f717118c1c852e97bcf22f47a4c046a74e9d3c1
+    home: https://openlit.io
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    keywords:
+    - observability
+    - opentelemetry
+    - ai
+    - ml
+    - instrumentation
+    - monitoring
+    - tracing
+    maintainers:
+    - email: contact@openlit.io
+      name: OpenLIT Team
+      url: https://openlit.io
+    name: openlit-operator
+    sources:
+    - https://github.com/openlit/openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-operator-0.2.1/openlit-operator-0.2.1.tgz
+    version: 0.2.1
   - annotations:
       category: Observability
       licenses: Apache-2.0
@@ -639,4 +691,4 @@ entries:
     urls:
     - https://github.com/openlit/helm/releases/download/openlit-operator-0.0.1/openlit-operator-0.0.1.tgz
     version: 0.0.1
-generated: "2025-09-13T11:36:35.728123232Z"
+generated: "2025-09-15T09:33:19.04251827Z"
