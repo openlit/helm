@@ -49,7 +49,16 @@ jobs:
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
             echo "No charts changed"
           else
-            MATRIX_JSON=$(printf '%s\n' "${CHANGED_CHARTS[@]}" | jq -R . | jq -s '{include: [.[] | {chart: .}]}')
+            # Build JSON matrix manually
+            MATRIX_JSON="{\"include\":["
+            for i in "${!CHANGED_CHARTS[@]}"; do
+              if [ $i -gt 0 ]; then
+                MATRIX_JSON="$MATRIX_JSON,"
+              fi
+              MATRIX_JSON="$MATRIX_JSON{\"chart\":\"${CHANGED_CHARTS[$i]}\"}"
+            done
+            MATRIX_JSON="$MATRIX_JSON]}"
+            
             echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
             echo "Changed charts: ${CHANGED_CHARTS[*]}"
           fi
