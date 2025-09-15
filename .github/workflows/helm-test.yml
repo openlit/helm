@@ -106,6 +106,49 @@ jobs:
             echo "This might be expected due to different detection logic"
           fi
 
+      - name: Enforce version bump for chart changes
+        run: |
+          CHART_PATH="charts/${{ matrix.chart }}"
+          echo "Checking if ${{ matrix.chart }} chart version was bumped..."
+          
+          # Get changed files for this specific test run
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
+          
+          # Check if this chart's files were changed
+          if echo "$CHANGED_FILES" | grep -E "^$CHART_PATH/" > /dev/null; then
+            echo "📁 Files changed in $CHART_PATH/"
+            
+            # Check if version was bumped
+            OLD_VERSION=$(git show HEAD~1:$CHART_PATH/Chart.yaml | grep '^version:' | awk '{print $2}')
+            NEW_VERSION=$(grep '^version:' $CHART_PATH/Chart.yaml | awk '{print $2}')
+            
+            echo "Previous version: $OLD_VERSION"
+            echo "Current version:  $NEW_VERSION"
+            
+            if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
+              echo ""
+              echo "❌ ERROR: Chart files changed but version not bumped!"
+              echo ""
+              echo "The following files were modified in $CHART_PATH/:"
+              echo "$CHANGED_FILES" | grep "^$CHART_PATH/" | sed 's/^/  - /'
+              echo ""
+              echo "🔧 Required action: Bump the version in $CHART_PATH/Chart.yaml"
+              echo "   Current version: $OLD_VERSION"
+              echo "   Suggested: Bump to next patch/minor/major version"
+              echo ""
+              echo "This ensures proper chart versioning before merging."
+              exit 1
+            else
+              echo "✅ Version properly bumped from $OLD_VERSION to $NEW_VERSION"
+            fi
+          else
+            echo "ℹ️  No files changed in $CHART_PATH/ (this shouldn't happen in matrix)"
+          fi
+
       - name: Run chart-testing (lint)
         run: ct lint --charts charts/${{ matrix.chart }} --validate-maintainers=false
 
