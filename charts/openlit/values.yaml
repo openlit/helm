@@ -54,6 +54,16 @@ tolerations: []
 # Affinity for pod assignment
 affinity: {}
 
+# Persistent storage configuration for OpenLIT
+persistence:
+  # Enable persistent storage for OpenLIT data
+  enabled: true
+  # storageClassName: ""
+  # Access mode for the persistent volume
+  accessMode: ReadWriteOnce
+  # Size of the persistent volume
+  size: 5Gi
+
 # OpenLIT-specific configurations
 config:
   # secret:

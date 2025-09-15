@@ -6,7 +6,87 @@ on:
       - main
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      any_changed: ${{ steps.set-matrix.outputs.any_changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed charts with version bumps
+        id: set-matrix
+        run: |
+          # Get changed files in the last commit
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          
+          # Find charts with version changes
+          CHARTS_TO_RELEASE=()
+          
+          # Check if openlit chart changed and version was bumped
+          if echo "$CHANGED_FILES" | grep -E "^charts/openlit/" > /dev/null; then
+            if echo "$CHANGED_FILES" | grep -E "^charts/openlit/Chart\.yaml$" > /dev/null; then
+              # Chart.yaml was modified, check if version changed
+              OLD_VERSION=$(git show HEAD~1:charts/openlit/Chart.yaml | grep '^version:' | awk '{print $2}')
+              NEW_VERSION=$(grep '^version:' charts/openlit/Chart.yaml | awk '{print $2}')
+              if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
+                echo "openlit version bumped from $OLD_VERSION to $NEW_VERSION"
+                CHARTS_TO_RELEASE+=("openlit")
+              else
+                echo "openlit Chart.yaml changed but version not bumped ($OLD_VERSION)"
+              fi
+            else
+              echo "openlit files changed but Chart.yaml not modified - no release needed"
+            fi
+          fi
+          
+          # Check if openlit-operator chart changed and version was bumped
+          if echo "$CHANGED_FILES" | grep -E "^charts/openlit-operator/" > /dev/null; then
+            if echo "$CHANGED_FILES" | grep -E "^charts/openlit-operator/Chart\.yaml$" > /dev/null; then
+              # Chart.yaml was modified, check if version changed
+              OLD_VERSION=$(git show HEAD~1:charts/openlit-operator/Chart.yaml | grep '^version:' | awk '{print $2}')
+              NEW_VERSION=$(grep '^version:' charts/openlit-operator/Chart.yaml | awk '{print $2}')
+              if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
+                echo "openlit-operator version bumped from $OLD_VERSION to $NEW_VERSION"
+                CHARTS_TO_RELEASE+=("openlit-operator")
+              else
+                echo "openlit-operator Chart.yaml changed but version not bumped ($OLD_VERSION)"
+              fi
+            else
+              echo "openlit-operator files changed but Chart.yaml not modified - no release needed"
+            fi
+          fi
+          
+          # Create matrix and set any_changed flag
+          if [ ${#CHARTS_TO_RELEASE[@]} -eq 0 ]; then
+            echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
+            echo "any_changed=false" >> "$GITHUB_OUTPUT"
+            echo "No charts need to be released"
+          else
+            # Build JSON matrix manually
+            MATRIX_JSON="{\"include\":["
+            for i in "${!CHARTS_TO_RELEASE[@]}"; do
+              if [ $i -gt 0 ]; then
+                MATRIX_JSON="$MATRIX_JSON,"
+              fi
+              MATRIX_JSON="$MATRIX_JSON{\"chart\":\"${CHARTS_TO_RELEASE[$i]}\"}"
+            done
+            MATRIX_JSON="$MATRIX_JSON]}"
+            
+            echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
+            echo "any_changed=true" >> "$GITHUB_OUTPUT"
+            echo "Charts ready for release: ${CHARTS_TO_RELEASE[*]}"
+          fi
+
   release:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.any_changed == 'true'
     permissions:
       contents: write
     runs-on: ubuntu-latest
