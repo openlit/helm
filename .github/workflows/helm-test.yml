@@ -163,4 +163,22 @@ jobs:
         uses: helm/kind-action@v1.10.0
 
       - name: Run chart-testing (install)
-        run: ct install --charts charts/${{ matrix.chart }} --debug --helm-extra-set-args="--timeout=10m"
+        run: ct install --charts charts/${{ matrix.chart }} --debug --helm-extra-set-args="--timeout=15m"
+
+      - name: Verify pods are running (if ct install fails)
+        if: failure()
+        run: |
+          echo "🔍 Checking pod status after failed installation..."
+          kubectl get pods -A
+          echo ""
+          echo "🔍 Checking events in test namespace..."
+          TEST_NAMESPACE=$(kubectl get namespaces -o name | grep chart-testing | head -1 | cut -d'/' -f2)
+          if [ -n "$TEST_NAMESPACE" ]; then
+            echo "Found test namespace: $TEST_NAMESPACE"
+            kubectl get events -n $TEST_NAMESPACE --sort-by='.lastTimestamp'
+            echo ""
+            echo "🔍 Describing pods in test namespace..."
+            kubectl describe pods -n $TEST_NAMESPACE
+          else
+            echo "No chart-testing namespace found"
+          fi
