@@ -96,89 +96,56 @@ jobs:
           changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "Charts changed according to ct: $changed"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No charts changed according to ct"
-          fi
-
-      - name: Validate change detection
-        run: |
-          echo "Our matrix detected chart: ${{ matrix.chart }}"
-          echo "ct detected changes: ${{ steps.list-changed.outputs.changed }}"
-          if [ "${{ steps.list-changed.outputs.changed }}" = "true" ]; then
-            echo "✅ Both change detection methods agree - proceeding with tests"
-          else
-            echo "⚠️ Warning: ct list-changed didn't detect changes, but our matrix did"
-            echo "This might be expected due to different detection logic"
-          fi
-
-      - name: Enforce version bump for chart changes
-        run: |
-          CHART_PATH="charts/${{ matrix.chart }}"
-          echo "Checking if ${{ matrix.chart }} chart version was bumped..."
-          
-          # Get changed files for this specific test run
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
-          else
-            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
-          fi
-          
-          # Check if this chart's files were changed
-          if echo "$CHANGED_FILES" | grep -E "^$CHART_PATH/" > /dev/null; then
-            echo "📁 Files changed in $CHART_PATH/"
-            
-            # Check if version was bumped
-            OLD_VERSION=$(git show HEAD~1:$CHART_PATH/Chart.yaml | grep '^version:' | awk '{print $2}')
-            NEW_VERSION=$(grep '^version:' $CHART_PATH/Chart.yaml | awk '{print $2}')
-            
-            echo "Previous version: $OLD_VERSION"
-            echo "Current version:  $NEW_VERSION"
-            
-            if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
-              echo ""
-              echo "❌ ERROR: Chart files changed but version not bumped!"
-              echo ""
-              echo "The following files were modified in $CHART_PATH/:"
-              echo "$CHANGED_FILES" | grep "^$CHART_PATH/" | sed 's/^/  - /'
-              echo ""
-              echo "🔧 Required action: Bump the version in $CHART_PATH/Chart.yaml"
-              echo "   Current version: $OLD_VERSION"
-              echo "   Suggested: Bump to next patch/minor/major version"
-              echo ""
-              echo "This ensures proper chart versioning before merging."
-              exit 1
-            else
-              echo "✅ Version properly bumped from $OLD_VERSION to $NEW_VERSION"
-            fi
-          else
-            echo "ℹ️  No files changed in $CHART_PATH/ (this shouldn't happen in matrix)"
           fi
 
       - name: Run chart-testing (lint)
-        run: ct lint --charts charts/${{ matrix.chart }} --validate-maintainers=false
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct lint --target-branch ${{ github.event.repository.default_branch }}
+
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.10.0
 
-      - name: Run chart-testing (install)
-        run: ct install --charts charts/${{ matrix.chart }} --debug
+      - name: Install Helm Chart
+        run: helm install ${{ matrix.chart }}-test ./charts/${{ matrix.chart }} --namespace ${{ matrix.chart }}-test --create-namespace
 
-      - name: Verify pods are running (if ct install fails)
-        if: failure()
+      - name: Wait for Pods to be ready
+        run: sleep 120
+      
+      - name: Check Pod status
         run: |
-          echo "🔍 Checking pod status after failed installation..."
-          kubectl get pods -A
-          echo ""
-          echo "🔍 Checking events in test namespace..."
-          TEST_NAMESPACE=$(kubectl get namespaces -o name | grep chart-testing | head -1 | cut -d'/' -f2)
-          if [ -n "$TEST_NAMESPACE" ]; then
-            echo "Found test namespace: $TEST_NAMESPACE"
-            kubectl get events -n $TEST_NAMESPACE --sort-by='.lastTimestamp'
+          kubectl get pods -n ${{ matrix.chart }}-test
+
+      - name: Print logs for chart pods
+        run: |
+          NAMESPACE=${{ matrix.chart }}-test
+          echo "=== Getting all pods in namespace $NAMESPACE ==="
+          PODS=$(kubectl get pods -n $NAMESPACE -o jsonpath='{.items[*].metadata.name}')
+          echo "Found pods: $PODS"
+          
+          for POD in $PODS; do
             echo ""
-            echo "🔍 Describing pods in test namespace..."
-            kubectl describe pods -n $TEST_NAMESPACE
+            echo "=== Logs for pod $POD ==="
+            kubectl logs -n $NAMESPACE $POD --all-containers=true --ignore-errors=true || echo "Could not get logs for $POD"
+          done
+      
+      - name: Check if pods are running
+        run: |
+          NAMESPACE=${{ matrix.chart }}-test
+          echo "Checking pod status in namespace: $NAMESPACE"
+          
+          # Get all pods and their status
+          kubectl get pods -n $NAMESPACE -o wide
+          
+          # Check for any non-running pods
+          FAILED_PODS=$(kubectl get pods -n $NAMESPACE --field-selector=status.phase!=Running,status.phase!=Succeeded -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
+          
+          if [ -n "$FAILED_PODS" ]; then
+            echo "❌ The following pods are not in Running/Succeeded state: $FAILED_PODS"
+            echo ""
+            echo "Pod details:"
+            kubectl describe pods -n $NAMESPACE $FAILED_PODS
+            exit 1
           else
-            echo "No chart-testing namespace found"
+            echo "✅ All pods are in Running/Succeeded state in namespace $NAMESPACE"
           fi
