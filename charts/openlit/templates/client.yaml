@@ -127,6 +127,11 @@ spec:
           {{- end }}
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
+        {{- if .Values.persistence.enabled }}
+        volumeMounts:
+          - name: openlit-data
+            mountPath: /app/client/data
+        {{- end }}
       - name: opentelemetry-collector
         image: otel/opentelemetry-collector-contrib:0.94.0
         command:
@@ -190,6 +195,19 @@ spec:
       affinity:
         {{- toYaml .Values.affinity | nindent 8 }}
       {{- end }}
+  {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: openlit-data
+    spec:
+      accessModes: [ "{{ .Values.persistence.accessMode }}" ]
+      resources:
+        requests:
+          storage: {{ .Values.persistence.size }}
+      {{- with .Values.persistence.storageClassName }}
+      storageClassName: {{ . }}
+      {{- end }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: Service

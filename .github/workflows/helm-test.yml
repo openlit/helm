@@ -8,8 +8,58 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  detect-changes:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed charts
+        id: set-matrix
+        run: |
+          # Get changed files
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
+          
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          
+          # Find changed charts
+          CHANGED_CHARTS=()
+          
+          # Check if openlit chart changed
+          if echo "$CHANGED_FILES" | grep -E "^charts/openlit/" > /dev/null; then
+            CHANGED_CHARTS+=("openlit")
+          fi
+          
+          # Check if openlit-operator chart changed
+          if echo "$CHANGED_FILES" | grep -E "^charts/openlit-operator/" > /dev/null; then
+            CHANGED_CHARTS+=("openlit-operator")
+          fi
+          
+          # Create matrix
+          if [ ${#CHANGED_CHARTS[@]} -eq 0 ]; then
+            echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
+            echo "No charts changed"
+          else
+            MATRIX_JSON=$(printf '%s\n' "${CHANGED_CHARTS[@]}" | jq -R . | jq -s '{include: [.[] | {chart: .}]}')
+            echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
+            echo "Changed charts: ${CHANGED_CHARTS[*]}"
+          fi
+
+  test:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.matrix != '{"include":[]}'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,54 +71,44 @@ jobs:
         with:
           version: v3.12.1
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          check-latest: true
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.6.1
 
-      # - name: Set up chart-testing
-      #   uses: helm/chart-testing-action@v2.6.1
-
-      # - name: Run chart-testing (list-changed)
-      #   id: list-changed
-      #   run: |
-      #     changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
-      #     if [[ -n "$changed" ]]; then
-      #       echo "changed=true" >> "$GITHUB_OUTPUT"
-      #     fi
-
-      # - name: Run chart-testing (lint)
-      #   if: steps.list-changed.outputs.changed == 'true'
-      #   run: ct lint --target-branch ${{ github.event.repository.default_branch }}
+      - name: Run chart-testing (lint)
+        run: ct lint --charts charts/${{ matrix.chart }}
 
       - name: Create kind cluster
-        if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@v1.10.0
 
-      - name: Install Helm Chart in namespace `openlit`
-        if: steps.list-changed.outputs.changed == 'true'
-        run: helm install openlit ./charts/openlit --namespace openlit --create-namespace
+      - name: Install Helm Chart
+        run: |
+          NAMESPACE=${{ matrix.chart }}
+          helm install ${{ matrix.chart }} ./charts/${{ matrix.chart }} --namespace $NAMESPACE --create-namespace
 
-      - name: Wait for Pods to be ready in namespace `openlit`
-        if: steps.list-changed.outputs.changed == 'true'
+      - name: Wait for Pods to be ready
         run: sleep 120
       
-      - name: Check Pod status in namespace `openlit`
-        if: steps.list-changed.outputs.changed == 'true'
+      - name: Check Pod status
         run: |
-          kubectl get pods -n openlit
+          kubectl get pods -n ${{ matrix.chart }}
 
-      - name: Print logs for a pod with label `app=openlit`
-        if: steps.list-changed.outputs.changed == 'true'
+      - name: Print logs for chart pods
         run: |
-          kubectl logs -n openlit -l app=openlit
+          NAMESPACE=${{ matrix.chart }}
+          # Get pods in the namespace and print their logs
+          PODS=$(kubectl get pods -n $NAMESPACE -o jsonpath='{.items[*].metadata.name}')
+          for POD in $PODS; do
+            echo "=== Logs for pod $POD ==="
+            kubectl logs -n $NAMESPACE $POD --all-containers=true || true
+          done
       
-      - name: Check if OpenLIT pod is running
-        if: steps.list-changed.outputs.changed == 'true'
+      - name: Check if pods are running
         run: |
-          STATUS=$(kubectl get pods -l app=openlit -n openlit -o jsonpath="{.items[*].status.phase}")
-          if [ "$STATUS" != "Running" ]; then
-            echo "Pod is not in Running state: $STATUS"
+          NAMESPACE=${{ matrix.chart }}
+          FAILED_PODS=$(kubectl get pods -n $NAMESPACE --field-selector=status.phase!=Running,status.phase!=Succeeded -o jsonpath='{.items[*].metadata.name}')
+          if [ -n "$FAILED_PODS" ]; then
+            echo "The following pods are not in Running/Succeeded state: $FAILED_PODS"
+            kubectl get pods -n $NAMESPACE
             exit 1
           fi
-          echo "All pods are in the Running state."
+          echo "All pods are in Running/Succeeded state."
