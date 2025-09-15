@@ -78,3 +78,184 @@ jobs:
             exit 1
           fi
           echo "All pods are in the Running state."
+name: Helm Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed charts
+        id: set-matrix
+        run: |
+          # Get changed files
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
+          
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          
+          # Find changed charts
+          CHANGED_CHARTS=()
+          
+          # Check if openlit chart changed
+          if echo "$CHANGED_FILES" | grep -E "^charts/openlit/" > /dev/null; then
+            CHANGED_CHARTS+=("openlit")
+          fi
+          
+          # Check if openlit-operator chart changed
+          if echo "$CHANGED_FILES" | grep -E "^charts/openlit-operator/" > /dev/null; then
+            CHANGED_CHARTS+=("openlit-operator")
+          fi
+          
+          # Create matrix
+          if [ ${#CHANGED_CHARTS[@]} -eq 0 ]; then
+            echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
+            echo "No charts changed"
+          else
+            # Build JSON matrix manually
+            MATRIX_JSON="{\"include\":["
+            for i in "${!CHANGED_CHARTS[@]}"; do
+              if [ $i -gt 0 ]; then
+                MATRIX_JSON="$MATRIX_JSON,"
+              fi
+              MATRIX_JSON="$MATRIX_JSON{\"chart\":\"${CHANGED_CHARTS[$i]}\"}"
+            done
+            MATRIX_JSON="$MATRIX_JSON]}"
+            
+            echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
+            echo "Changed charts: ${CHANGED_CHARTS[*]}"
+          fi
+
+  test:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.matrix != '{"include":[]}'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.12.1
+
+      - name: Enforce version bump for chart changes
+        run: |
+          CHART_PATH="charts/${{ matrix.chart }}"
+          echo "Checking if ${{ matrix.chart }} chart version was bumped..."
+          
+          # Get changed files for this specific test run
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
+          
+          # Check if this chart's files were changed
+          if echo "$CHANGED_FILES" | grep -E "^$CHART_PATH/" > /dev/null; then
+            echo "📁 Files changed in $CHART_PATH/"
+            
+            # Check if version was bumped
+            OLD_VERSION=$(git show HEAD~1:$CHART_PATH/Chart.yaml | grep '^version:' | awk '{print $2}')
+            NEW_VERSION=$(grep '^version:' $CHART_PATH/Chart.yaml | awk '{print $2}')
+            
+            echo "Previous version: $OLD_VERSION"
+            echo "Current version:  $NEW_VERSION"
+            
+            if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
+              echo ""
+              echo "❌ ERROR: Chart files changed but version not bumped!"
+              echo ""
+              echo "The following files were modified in $CHART_PATH/:"
+              echo "$CHANGED_FILES" | grep "^$CHART_PATH/" | sed 's/^/  - /'
+              echo ""
+              echo "🔧 Required action: Bump the version in $CHART_PATH/Chart.yaml"
+              echo "   Current version: $OLD_VERSION"
+              echo "   Suggested: Bump to next patch/minor/major version"
+              echo ""
+              echo "This ensures proper chart versioning before merging."
+              exit 1
+            else
+              echo "✅ Version properly bumped from $OLD_VERSION to $NEW_VERSION"
+            fi
+          else
+            echo "ℹ️  No files changed in $CHART_PATH/ (this shouldn't happen in matrix)"
+          fi
+
+      - name: Run chart linting
+        run: |
+          echo "🔍 Linting chart: ${{ matrix.chart }}"
+          helm lint ./charts/${{ matrix.chart }}
+          echo "✅ Chart linting completed for ${{ matrix.chart }}"
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.10.0
+
+      - name: Install Helm Chart
+        run: helm install ${{ matrix.chart }}-test ./charts/${{ matrix.chart }} --namespace ${{ matrix.chart }}-test --create-namespace
+
+      - name: Wait for Pods to be ready
+        run: sleep 60
+      
+      - name: Check Pod status
+        run: |
+          kubectl get pods -n ${{ matrix.chart }}-test
+
+      - name: Print logs for chart pods
+        run: |
+          NAMESPACE=${{ matrix.chart }}-test
+          echo "=== Getting all pods in namespace $NAMESPACE ==="
+          PODS=$(kubectl get pods -n $NAMESPACE -o jsonpath='{.items[*].metadata.name}')
+          echo "Found pods: $PODS"
+          
+          for POD in $PODS; do
+            echo ""
+            echo "=== Logs for pod $POD ==="
+            kubectl logs -n $NAMESPACE $POD --all-containers=true --ignore-errors=true || echo "Could not get logs for $POD"
+          done
+      
+      - name: Check if pods are running
+        run: |
+          NAMESPACE=${{ matrix.chart }}-test
+          echo "Checking pod status in namespace: $NAMESPACE"
+          
+          # Get all pods and their status
+          kubectl get pods -n $NAMESPACE -o wide
+          
+          # Check for any non-running pods
+          FAILED_PODS=$(kubectl get pods -n $NAMESPACE --field-selector=status.phase!=Running,status.phase!=Succeeded -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
+          
+          if [ -n "$FAILED_PODS" ]; then
+            echo "❌ The following pods are not in Running/Succeeded state: $FAILED_PODS"
+            echo ""
+            echo "Pod details:"
+            kubectl describe pods -n $NAMESPACE $FAILED_PODS
+            exit 1
+          else
+            echo "✅ All pods are in Running/Succeeded state in namespace $NAMESPACE"
+          fi
