@@ -5,7 +5,18 @@ type: application
 version: 1.14.6
 appVersion: 1.14.4
 icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
-
+home: https://openlit.io
+sources:
+  - https://github.com/openlit/openlit
+keywords:
+  - observability
+  - opentelemetry
+  - ai
+  - ml
+  - instrumentation
+  - monitoring
+  - tracing
 maintainers:
-- name: patcher9
-  email: patcher9@openlit.io
+  - name: OpenLIT Team
+    email: contact@openlit.io
+    url: https://openlit.io
