@@ -80,6 +80,27 @@ spec:
         {{- include "openlit.labels" . | nindent 8 }}
         app.kubernetes.io/component: openlit
     spec:
+      {{- if .Values.clickhouse.enabled }}
+      initContainers:
+      - name: wait-for-clickhouse
+        image: busybox:1.35
+        command: ['sh', '-c']
+        args:
+        - |
+          echo "Waiting for ClickHouse to be ready..."
+          until nc -z {{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local 8123; do
+            echo "ClickHouse not ready, waiting..."
+            sleep 5
+          done
+          echo "ClickHouse is ready!"
+          
+          # Also check if ClickHouse HTTP interface is responding
+          until wget --quiet --tries=1 --timeout=3 --spider http://{{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local:8123/ping || [ $? -eq 4 ]; do
+            echo "ClickHouse HTTP interface not ready, waiting..."
+            sleep 5
+          done
+          echo "ClickHouse HTTP interface is ready!"
+      {{- end }}
       containers:
       - name: openlit
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
