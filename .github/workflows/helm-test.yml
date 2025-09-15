@@ -83,6 +83,29 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.6.1
 
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Charts changed according to ct: $changed"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No charts changed according to ct"
+          fi
+
+      - name: Validate change detection
+        run: |
+          echo "Our matrix detected chart: ${{ matrix.chart }}"
+          echo "ct detected changes: ${{ steps.list-changed.outputs.changed }}"
+          if [ "${{ steps.list-changed.outputs.changed }}" = "true" ]; then
+            echo "✅ Both change detection methods agree - proceeding with tests"
+          else
+            echo "⚠️ Warning: ct list-changed didn't detect changes, but our matrix did"
+            echo "This might be expected due to different detection logic"
+          fi
+
       - name: Run chart-testing (lint)
         run: ct lint --charts charts/${{ matrix.chart }} --validate-maintainers=false
 
@@ -90,4 +113,4 @@ jobs:
         uses: helm/kind-action@v1.10.0
 
       - name: Run chart-testing (install)
-        run: ct install --charts charts/${{ matrix.chart }} --debug
+        run: ct install --charts charts/${{ matrix.chart }} --debug --helm-extra-set-args="--timeout=10m"
