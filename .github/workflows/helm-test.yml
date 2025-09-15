@@ -8,10 +8,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # Use github.run_id on main branch
-  # Use github.event.pull_request.number on pull requests, so it's unique per pull request
-  # Use github.ref on other branches, so it's unique per branch
-  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -87,21 +84,54 @@ jobs:
         with:
           version: v3.12.1
 
-      - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.6.1
-
-      - name: Run chart-testing (list-changed)
-        id: list-changed
+      - name: Enforce version bump for chart changes
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
-          if [[ -n "$changed" ]]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+          CHART_PATH="charts/${{ matrix.chart }}"
+          echo "Checking if ${{ matrix.chart }} chart version was bumped..."
+          
+          # Get changed files for this specific test run
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
+          
+          # Check if this chart's files were changed
+          if echo "$CHANGED_FILES" | grep -E "^$CHART_PATH/" > /dev/null; then
+            echo "📁 Files changed in $CHART_PATH/"
+            
+            # Check if version was bumped
+            OLD_VERSION=$(git show HEAD~1:$CHART_PATH/Chart.yaml | grep '^version:' | awk '{print $2}')
+            NEW_VERSION=$(grep '^version:' $CHART_PATH/Chart.yaml | awk '{print $2}')
+            
+            echo "Previous version: $OLD_VERSION"
+            echo "Current version:  $NEW_VERSION"
+            
+            if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
+              echo ""
+              echo "❌ ERROR: Chart files changed but version not bumped!"
+              echo ""
+              echo "The following files were modified in $CHART_PATH/:"
+              echo "$CHANGED_FILES" | grep "^$CHART_PATH/" | sed 's/^/  - /'
+              echo ""
+              echo "🔧 Required action: Bump the version in $CHART_PATH/Chart.yaml"
+              echo "   Current version: $OLD_VERSION"
+              echo "   Suggested: Bump to next patch/minor/major version"
+              echo ""
+              echo "This ensures proper chart versioning before merging."
+              exit 1
+            else
+              echo "✅ Version properly bumped from $OLD_VERSION to $NEW_VERSION"
+            fi
+          else
+            echo "ℹ️  No files changed in $CHART_PATH/ (this shouldn't happen in matrix)"
           fi
 
-      - name: Run chart-testing (lint)
-        if: steps.list-changed.outputs.changed == 'true'
-        run: ct lint --target-branch ${{ github.event.repository.default_branch }}
-
+      - name: Run chart linting
+        run: |
+          echo "🔍 Linting chart: ${{ matrix.chart }}"
+          helm lint ./charts/${{ matrix.chart }}
+          echo "✅ Chart linting completed for ${{ matrix.chart }}"
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.10.0
