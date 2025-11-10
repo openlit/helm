@@ -134,7 +134,7 @@ jobs:
           echo "✅ Chart linting completed for ${{ matrix.chart }}"
 
       - name: Create kind cluster
-        uses: helm/kind-action@v1.10.0
+        uses: helm/kind-action@v1.13.0
 
       - name: Install Helm Chart
         run: helm install ${{ matrix.chart }}-test ./charts/${{ matrix.chart }} --namespace ${{ matrix.chart }}-test --create-namespace
