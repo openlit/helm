@@ -104,6 +104,27 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
 
+      - name: Add Helm repositories
+        run: |
+          echo "📦 Adding OpenLIT Helm repository"
+          helm repo add openlit https://openlit.github.io/helm/
+          helm repo update
+          echo "✅ Helm repositories added and updated"
+
+      - name: Build chart dependencies
+        run: |
+          echo "📦 Building dependencies for all charts with dependencies"
+          for chart in charts/*/Chart.yaml; do
+            chart_dir=$(dirname "$chart")
+            if [ -f "$chart_dir/Chart.yaml" ] && grep -q "^dependencies:" "$chart_dir/Chart.yaml"; then
+              echo "Building dependencies for $chart_dir"
+              cd "$chart_dir"
+              helm dependency build
+              cd - > /dev/null
+            fi
+          done
+          echo "✅ All chart dependencies built"
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
         with:

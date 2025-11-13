@@ -2,8 +2,8 @@ apiVersion: v2
 name: openlit
 description: A Helm chart for OpenLIT
 type: application
-version: 1.14.6
-appVersion: 1.14.4
+version: 1.15.0
+appVersion: 1.15.0
 icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
 home: https://openlit.io
 sources:
@@ -20,3 +20,10 @@ maintainers:
   - name: OpenLIT Team
     email: contact@openlit.io
     url: https://openlit.io
+dependencies:
+  - name: openlit-operator
+    version: "0.2.1"
+    repository: "https://openlit.github.io/helm/"
+    condition: openlit-operator.enabled
+    tags:
+      - operator

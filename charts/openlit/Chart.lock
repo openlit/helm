@@ -1,0 +1,6 @@
+dependencies:
+- name: openlit-operator
+  repository: https://openlit.github.io/helm/
+  version: 0.2.1
+digest: sha256:55d95e7eba90c76f827a7d92c61096a14787d7294a2f7eff3c8cc5a4b83d9336
+generated: "2025-11-13T12:16:01.806058+05:30"

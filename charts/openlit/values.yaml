@@ -36,8 +36,8 @@ service:
 # Resource limit and request configuration for the OpenLIT pod
 resources:
   limits:
-    cpu: '1'
-    memory: 1280Mi
+    cpu: 2000m
+    memory: 2Gi
   requests:
     cpu: 100m
     memory: 128Mi
@@ -96,6 +96,21 @@ config:
     account_email: user@openlit.io
     account_password: openlituser
 
+  # OpAMP (OpenTelemetry Agent Management Protocol) and embedded collector configuration
+  opamp:
+    # Environment for OpAMP (e.g., production, staging, development)
+    environment: production
+    # Skip TLS certificate verification (set to true only for testing)
+    tlsInsecureSkipVerify: false
+    # Require client certificate for TLS
+    tlsRequireClientCert: true
+    # Minimum TLS version (1.2 or 1.3)
+    tlsMinVersion: "1.2"
+    # Maximum TLS version (1.2 or 1.3)
+    tlsMaxVersion: "1.3"
+    # Log level for OpAMP (debug, info, warn, error)
+    logLevel: info
+
 # ClickHouse database configuration (used as the backend for OpenLIT)
 clickhouse:
   # Toggle to enable/disable the ClickHouse database deployment
@@ -124,7 +139,7 @@ clickhouse:
 
   # Kubernetes Service configuration for ClickHouse
   service:
-    type: LoadBalancer
+    type: ClusterIP
 
   # Persistent storage configuration for ClickHouse
   persistence:
@@ -134,13 +149,13 @@ clickhouse:
     # Size of the persistent volume
     size: 10Gi
 
-  # resources:
-  #   limits:
-  #     cpu: 1000m
-  #     memory: 1280Mi
-  #   requests:
-  #     cpu: 100m
-  #     memory: 128Mi
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
 
 # Ingress configuration (for exposing OpenLIT via an ingress)
 ingress:
@@ -158,3 +173,17 @@ ingress:
   - secretName: chart-example-tls
     hosts:
     - chart-example.local
+
+# OpenLIT Operator - Auto-instrumentation for Kubernetes workloads
+# Enable this to automatically instrument your applications with OpenTelemetry
+openlit-operator:
+  # Set to true to deploy the OpenLIT operator alongside OpenLIT
+  enabled: false
+
+  # Operator configuration can be customized here
+  # For full configuration options, see: charts/openlit-operator/values.yaml
+  # Example:
+  # replicaCount: 1
+  # image:
+  #   repository: ghcr.io/openlit/operator
+  #   tag: latest
