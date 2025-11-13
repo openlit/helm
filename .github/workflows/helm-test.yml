@@ -84,6 +84,13 @@ jobs:
         with:
           version: v3.12.1
 
+      - name: Add Helm repositories
+        run: |
+          echo "📦 Adding OpenLIT Helm repository"
+          helm repo add openlit https://openlit.github.io/helm/
+          helm repo update
+          echo "✅ Helm repositories added and updated"
+
       - name: Enforce version bump for chart changes
         run: |
           CHART_PATH="charts/${{ matrix.chart }}"
