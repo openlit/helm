@@ -96,6 +96,21 @@ config:
     account_email: user@openlit.io
     account_password: openlituser
 
+  # OpAMP (OpenTelemetry Agent Management Protocol) and embedded collector configuration
+  opamp:
+    # Environment for OpAMP (e.g., production, staging, development)
+    environment: production
+    # Skip TLS certificate verification (set to true only for testing)
+    tlsInsecureSkipVerify: false
+    # Require client certificate for TLS
+    tlsRequireClientCert: true
+    # Minimum TLS version (1.2 or 1.3)
+    tlsMinVersion: "1.2"
+    # Maximum TLS version (1.2 or 1.3)
+    tlsMaxVersion: "1.3"
+    # Log level for OpAMP (debug, info, warn, error)
+    logLevel: info
+
 # ClickHouse database configuration (used as the backend for OpenLIT)
 clickhouse:
   # Toggle to enable/disable the ClickHouse database deployment

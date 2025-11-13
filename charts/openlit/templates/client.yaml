@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: openlit-collector-config
+  name: {{ include "openlit.fullname" . }}-otel-config
   labels:
     app: {{ include "openlit.fullname" . }}
-    # {{- include "openlit.labels" . | nindent 4 }}
-    app.kubernetes.io/component: opentelemetry-collector
+    {{- include "openlit.labels" . | nindent 4 }}
+    app.kubernetes.io/component: openlit
 data:
-  opentelemetry-collector-config: |
+  otel-collector-config.yaml: |
     receivers:
       otlp:
         protocols:
@@ -16,17 +16,19 @@ data:
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:4318
+
     processors:
       batch:
       memory_limiter:
+        # 80% of maximum memory up to 2G
         limit_mib: 1500
+        # 25% of limit up to 2G
         spike_limit_mib: 512
         check_interval: 5s
-    extensions:
-      zpages: {}
+
     exporters:
       clickhouse:
-        endpoint: tcp://${env:INIT_DB_HOST}:${env:INIT_DB_PORT}?dial_timeout=10s
+        endpoint: tcp://${env:INIT_DB_HOST}:9000?dial_timeout=10s
         database: ${env:INIT_DB_DATABASE}
         username: ${env:INIT_DB_USERNAME}
         password: ${env:INIT_DB_PASSWORD}
@@ -40,22 +42,22 @@ data:
           initial_interval: 5s
           max_interval: 30s
           max_elapsed_time: 300s
+
     service:
       pipelines:
         logs:
-          receivers: [ otlp ]
-          processors: [ batch ]
-          exporters: [ clickhouse ]
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [clickhouse]
         traces:
-          receivers: [ otlp ]
+          receivers: [otlp]
           processors: [memory_limiter, batch]
-          exporters: [ clickhouse ]
+          exporters: [clickhouse]
         metrics:
-          receivers: [ otlp ]
+          receivers: [otlp]
           processors: [memory_limiter, batch]
-          exporters: [ clickhouse ]
+          exporters: [clickhouse]
 ---
-
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -107,7 +109,16 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
           - containerPort: {{ .Values.service.port }}
+            name: http
+          - containerPort: 4317
+            name: otlp-grpc
+          - containerPort: 4318
+            name: otlp-http
         env:
+          - name: PORT
+            value: "{{ .Values.service.port }}"
+          - name: HOSTNAME
+            value: "0.0.0.0"
           - name: TELEMETRY_ENABLED
             value: "{{ .Values.config.usageMetrics }}"
           {{- if .Values.clickhouse.enabled }}
@@ -146,60 +157,30 @@ spec:
           - name: DEMO_ACCOUNT_PASSWORD
             value: "{{ .Values.config.preview_mode.account_password }}"
           {{- end }}
+          - name: OPAMP_ENVIRONMENT
+            value: "{{ .Values.config.opamp.environment }}"
+          - name: OPAMP_TLS_INSECURE_SKIP_VERIFY
+            value: "{{ .Values.config.opamp.tlsInsecureSkipVerify }}"
+          - name: OPAMP_TLS_REQUIRE_CLIENT_CERT
+            value: "{{ .Values.config.opamp.tlsRequireClientCert }}"
+          - name: OPAMP_TLS_MIN_VERSION
+            value: "{{ .Values.config.opamp.tlsMinVersion }}"
+          - name: OPAMP_TLS_MAX_VERSION
+            value: "{{ .Values.config.opamp.tlsMaxVersion }}"
+          - name: OPAMP_LOG_LEVEL
+            value: "{{ .Values.config.opamp.logLevel }}"
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
-        {{- if .Values.persistence.enabled }}
         volumeMounts:
+          {{- if .Values.persistence.enabled }}
           - name: openlit-data
             mountPath: /app/client/data
-        {{- end }}
-      - name: opentelemetry-collector
-        image: otel/opentelemetry-collector-contrib:0.94.0
-        command:
-          - "/otelcol-contrib"
-          - "--config=/conf/opentelemetry-collector-config.yaml"
-        ports:
-          - containerPort: 4317
-          - containerPort: 4318
-        env:
-          {{- if .Values.clickhouse.enabled }}
-          - name: INIT_DB_HOST
-            value: "{{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local"
-          {{- else }}
-          - name: INIT_DB_HOST
-            value: "{{ .Values.config.database.host }}"
           {{- end }}
-          - name: INIT_DB_PORT
-            value: "9000"
-          - name: INIT_DB_DATABASE
-            value: "{{ .Values.config.database.name }}"
-          {{ if .Values.config.secret }}
-          - name: INIT_DB_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.config.secret.name }}
-                key: {{ .Values.config.secret.usernameKey }}
-          - name: INIT_DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.config.secret.name }}
-                key: {{ .Values.config.secret.passwordKey }}
-          {{ else }}
-          - name: INIT_DB_USERNAME
-            value: "{{ .Values.config.database.username }}"
-          - name: INIT_DB_PASSWORD
-            value: "{{ .Values.config.database.password }}"
-          {{- end }}
-        volumeMounts:
-          - name: opentelemetry-collector-config-vol
-            mountPath: /conf
-      volumes:
-        - name: opentelemetry-collector-config-vol
-          configMap:
-            name: openlit-collector-config
-            items:
-              - key: opentelemetry-collector-config
-                path: opentelemetry-collector-config.yaml
+          - name: otel-config
+            mountPath: /etc/otel
+          - name: otel-collector-config
+            mountPath: /etc/otel/otel-collector-config.yaml
+            subPath: otel-collector-config.yaml
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- range .Values.imagePullSecrets }}
@@ -216,6 +197,12 @@ spec:
       affinity:
         {{- toYaml .Values.affinity | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: otel-config
+          emptyDir: {}
+        - name: otel-collector-config
+          configMap:
+            name: {{ include "openlit.fullname" . }}-otel-config
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
   - metadata:
