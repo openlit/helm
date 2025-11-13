@@ -36,8 +36,8 @@ service:
 # Resource limit and request configuration for the OpenLIT pod
 resources:
   limits:
-    cpu: '1'
-    memory: 1280Mi
+    cpu: 2000m
+    memory: 2Gi
   requests:
     cpu: 100m
     memory: 128Mi
@@ -139,7 +139,7 @@ clickhouse:
 
   # Kubernetes Service configuration for ClickHouse
   service:
-    type: LoadBalancer
+    type: ClusterIP
 
   # Persistent storage configuration for ClickHouse
   persistence:
@@ -149,13 +149,13 @@ clickhouse:
     # Size of the persistent volume
     size: 10Gi
 
-  # resources:
-  #   limits:
-  #     cpu: 1000m
-  #     memory: 1280Mi
-  #   requests:
-  #     cpu: 100m
-  #     memory: 128Mi
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
 
 # Ingress configuration (for exposing OpenLIT via an ingress)
 ingress:

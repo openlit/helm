@@ -107,6 +107,12 @@ spec:
       - name: openlit
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: false
         ports:
           - containerPort: {{ .Values.service.port }}
             name: http
@@ -169,6 +175,22 @@ spec:
             value: "{{ .Values.config.opamp.tlsMaxVersion }}"
           - name: OPAMP_LOG_LEVEL
             value: "{{ .Values.config.opamp.logLevel }}"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
@@ -187,8 +209,10 @@ spec:
         - name: {{ . }}
         {{- end }}
       {{- end }}
+      {{- with .Values.nodeSelector }}
       nodeSelector:
-        {{ toYaml .Values.nodeSelector | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.tolerations }}
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
