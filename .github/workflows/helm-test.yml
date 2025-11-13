@@ -127,6 +127,13 @@ jobs:
             echo "ℹ️  No files changed in $CHART_PATH/ (this shouldn't happen in matrix)"
           fi
 
+      - name: Build chart dependencies
+        run: |
+          echo "📦 Building dependencies for chart: ${{ matrix.chart }}"
+          cd ./charts/${{ matrix.chart }}
+          helm dependency build
+          echo "✅ Dependencies built for ${{ matrix.chart }}"
+
       - name: Run chart linting
         run: |
           echo "🔍 Linting chart: ${{ matrix.chart }}"
