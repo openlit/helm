@@ -20,3 +20,10 @@ maintainers:
   - name: OpenLIT Team
     email: contact@openlit.io
     url: https://openlit.io
+dependencies:
+  - name: openlit-operator
+    version: "0.2.1"
+    repository: "https://openlit.github.io/helm/"
+    condition: openlit-operator.enabled
+    tags:
+      - operator

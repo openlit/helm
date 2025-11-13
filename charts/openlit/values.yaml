@@ -173,3 +173,17 @@ ingress:
   - secretName: chart-example-tls
     hosts:
     - chart-example.local
+
+# OpenLIT Operator - Auto-instrumentation for Kubernetes workloads
+# Enable this to automatically instrument your applications with OpenTelemetry
+openlit-operator:
+  # Set to true to deploy the OpenLIT operator alongside OpenLIT
+  enabled: false
+
+  # Operator configuration can be customized here
+  # For full configuration options, see: charts/openlit-operator/values.yaml
+  # Example:
+  # replicaCount: 1
+  # image:
+  #   repository: ghcr.io/openlit/operator
+  #   tag: latest
