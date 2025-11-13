@@ -286,6 +286,39 @@ entries:
     version: 0.0.6
   openlit:
   - apiVersion: v2
+    appVersion: 1.15.0
+    created: "2025-11-13T07:00:49.912339875Z"
+    dependencies:
+    - condition: openlit-operator.enabled
+      name: openlit-operator
+      repository: https://openlit.github.io/helm/
+      tags:
+      - operator
+      version: 0.2.1
+    description: A Helm chart for OpenLIT
+    digest: 1fb238bf4b2efce47304617702eacffeed5fd312c4080fdb291b4ee854e33fde
+    home: https://openlit.io
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    keywords:
+    - observability
+    - opentelemetry
+    - ai
+    - ml
+    - instrumentation
+    - monitoring
+    - tracing
+    maintainers:
+    - email: contact@openlit.io
+      name: OpenLIT Team
+      url: https://openlit.io
+    name: openlit
+    sources:
+    - https://github.com/openlit/openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-1.15.0/openlit-1.15.0.tgz
+    version: 1.15.0
+  - apiVersion: v2
     appVersion: 1.14.4
     created: "2025-09-15T09:33:18.892043086Z"
     description: A Helm chart for OpenLIT
@@ -691,4 +724,4 @@ entries:
     urls:
     - https://github.com/openlit/helm/releases/download/openlit-operator-0.0.1/openlit-operator-0.0.1.tgz
     version: 0.0.1
-generated: "2025-09-15T09:33:19.04251827Z"
+generated: "2025-11-13T07:00:49.912586655Z"
