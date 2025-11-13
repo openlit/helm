@@ -154,8 +154,8 @@ clickhouse:
       cpu: 2000m
       memory: 2Gi
     requests:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 100m
+      memory: 128Mi
 
 # Ingress configuration (for exposing OpenLIT via an ingress)
 ingress:
