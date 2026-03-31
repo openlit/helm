@@ -24,9 +24,20 @@ spec:
         app.kubernetes.io/component: database
     spec:
       terminationGracePeriodSeconds: 10
+      securityContext:
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
       containers:
       - name: clickhouse
-        image: clickhouse/clickhouse-server
+        image: "{{ .Values.clickhouse.image.repository }}:{{ .Values.clickhouse.image.tag }}"
+        imagePullPolicy: {{ .Values.clickhouse.image.pullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: false
         ports:
         - containerPort: 9000
         - containerPort: 8123
@@ -40,7 +51,7 @@ spec:
         - name: CLICKHOUSE_USER
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.clickhouse.secret.name }}
+              name: {{ .Values.clickhouse.auth.secret.name }}
               key: {{ default "default" .Values.clickhouse.auth.secret.usernameKey }}
         {{- else }}
         - name: CLICKHOUSE_PASSWORD
@@ -48,6 +59,22 @@ spec:
         - name: CLICKHOUSE_USER
           value: {{ .Values.clickhouse.auth.user | quote }}
         {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 8123
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 8123
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
         resources:
           {{- toYaml .Values.clickhouse.resources | nindent 12 }}
         volumeMounts:

@@ -18,7 +18,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -75,7 +75,7 @@ jobs:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -83,6 +83,13 @@ jobs:
         uses: azure/setup-helm@v4
         with:
           version: v3.12.1
+
+      - name: Add Helm repositories
+        run: |
+          echo "📦 Adding OpenLIT Helm repository"
+          helm repo add openlit https://openlit.github.io/helm/
+          helm repo update
+          echo "✅ Helm repositories added and updated"
 
       - name: Enforce version bump for chart changes
         run: |
@@ -126,6 +133,13 @@ jobs:
           else
             echo "ℹ️  No files changed in $CHART_PATH/ (this shouldn't happen in matrix)"
           fi
+
+      - name: Build chart dependencies
+        run: |
+          echo "📦 Building dependencies for chart: ${{ matrix.chart }}"
+          cd ./charts/${{ matrix.chart }}
+          helm dependency build
+          echo "✅ Dependencies built for ${{ matrix.chart }}"
 
       - name: Run chart linting
         run: |
