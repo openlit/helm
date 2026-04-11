@@ -1,0 +1,14 @@
+OpenLIT Controller has been deployed as a DaemonSet.
+
+It will automatically discover services making LLM API calls on every node.
+
+Dashboard URL: {{ include "openlit-controller.openlitUrl" . }}
+OTLP Endpoint: {{ include "openlit-controller.otlpEndpoint" . }}
+
+Next steps:
+  1. Open the OpenLIT dashboard
+  2. Navigate to Instrumentation Hub
+  3. Your services will appear automatically
+  4. Click "Enable" to start collecting LLM traces and metrics
+
+For more information, visit: https://docs.openlit.io/latest/controller/overview

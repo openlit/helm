@@ -1,0 +1,71 @@
+# OpenLIT Controller - Zero-code LLM and Agent observability
+# https://docs.openlit.io/latest/controller/overview
+
+# Number of pods is not configurable — the controller runs as a DaemonSet (one per node).
+
+# Container image
+image:
+  repository: ghcr.io/openlit/openlit-controller
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Controller configuration
+# When deployed as a subchart of the openlit chart, openlitUrl and otlpEndpoint
+# are auto-derived from the parent release name. Override only when using an
+# external OpenLIT instance or deploying the controller standalone.
+config:
+  # URL of the OpenLIT dashboard (required when standalone)
+  openlitUrl: ""
+  # OTLP HTTP endpoint for traces and metrics (required when standalone)
+  otlpEndpoint: ""
+  # How often the controller polls the dashboard
+  pollInterval: "60s"
+  # Deployment environment label
+  environment: "production"
+  # Cluster identifier for multi-cluster setups
+  clusterId: "default"
+  # API key for authenticating with the dashboard (optional)
+  apiKey: ""
+
+# ServiceAccount configuration
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# RBAC configuration
+rbac:
+  create: true
+
+# Pod resource limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Tolerations — defaults allow scheduling on all nodes (including masters)
+tolerations:
+  - effect: NoSchedule
+    operator: Exists
+  - effect: NoExecute
+    operator: Exists
+
+# Node selector for restricting which nodes run the controller
+nodeSelector: {}
+
+# Pod affinity rules
+affinity: {}
+
+# Additional labels to add to all resources
+additionalLabels: {}
+
+# Annotations to add to controller pods
+podAnnotations: {}
