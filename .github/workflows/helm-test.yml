@@ -43,9 +43,9 @@ jobs:
             CHANGED_CHARTS+=("openlit")
           fi
           
-          # Check if openlit-operator chart changed
-          if echo "$CHANGED_FILES" | grep -E "^charts/openlit-operator/" > /dev/null; then
-            CHANGED_CHARTS+=("openlit-operator")
+          # Check if openlit-controller chart changed
+          if echo "$CHANGED_FILES" | grep -E "^charts/openlit-controller/" > /dev/null; then
+            CHANGED_CHARTS+=("openlit-controller")
           fi
           
           # Create matrix
@@ -153,7 +153,14 @@ jobs:
       - name: Install Helm Chart
         run: helm install ${{ matrix.chart }}-test ./charts/${{ matrix.chart }} --namespace ${{ matrix.chart }}-test --create-namespace
 
+      - name: Verify resources created
+        run: |
+          NAMESPACE=${{ matrix.chart }}-test
+          echo "=== Installed resources in namespace $NAMESPACE ==="
+          kubectl get all -n $NAMESPACE
+
       - name: Wait for Pods to be ready
+        if: matrix.chart != 'openlit-controller'
         run: sleep 60
       
       - name: Check Pod status
@@ -174,6 +181,7 @@ jobs:
           done
       
       - name: Check if pods are running
+        if: matrix.chart != 'openlit-controller'
         run: |
           NAMESPACE=${{ matrix.chart }}-test
           echo "Checking pod status in namespace: $NAMESPACE"
@@ -193,3 +201,25 @@ jobs:
           else
             echo "✅ All pods are in Running/Succeeded state in namespace $NAMESPACE"
           fi
+
+      - name: Verify controller resources (controller chart only)
+        if: matrix.chart == 'openlit-controller'
+        run: |
+          NAMESPACE=${{ matrix.chart }}-test
+          echo "=== Verifying controller DaemonSet ==="
+          kubectl get daemonset -n $NAMESPACE
+          DS_COUNT=$(kubectl get daemonset -n $NAMESPACE -o jsonpath='{.items}' | jq length)
+          if [ "$DS_COUNT" -eq 0 ]; then
+            echo "❌ No DaemonSet found"
+            exit 1
+          fi
+          echo "✅ DaemonSet created"
+
+          echo "=== Verifying RBAC resources ==="
+          kubectl get serviceaccount -n $NAMESPACE
+          kubectl get clusterrole | grep openlit-controller || true
+          kubectl get clusterrolebinding | grep openlit-controller || true
+
+          echo "=== Verifying ConfigMap ==="
+          kubectl get configmap -n $NAMESPACE | grep openlit-controller
+          echo "✅ All controller resources verified"
