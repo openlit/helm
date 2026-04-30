@@ -119,7 +119,7 @@ clickhouse:
   # Docker image configuration for ClickHouse
   image:
     repository: clickhouse/clickhouse-server
-    tag: 24.2.2
+    tag: 24.4.1
     pullPolicy: IfNotPresent
 
   # Authentication configuration for ClickHouse
@@ -177,7 +177,7 @@ ingress:
 # OpenLIT Controller - Zero-code LLM and Agent observability using eBPF
 # Enable this to deploy the Controller DaemonSet alongside OpenLIT.
 # The Controller auto-discovers services making LLM API calls and lets you
-# enable observability from the Instrumentation Hub — no code changes needed.
+# enable observability from the Agents page — no code changes needed.
 openlit-controller:
   # Set to true to deploy the OpenLIT Controller alongside OpenLIT
   enabled: false

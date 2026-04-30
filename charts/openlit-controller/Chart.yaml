@@ -3,7 +3,7 @@ name: openlit-controller
 description: OpenLIT Controller - Zero-code LLM and Agent observability using eBPF
 type: application
 version: 0.1.0
-appVersion: "latest"
+appVersion: "0.1.0"
 home: https://openlit.io
 sources:
   - https://github.com/openlit/openlit

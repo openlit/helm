@@ -48,6 +48,10 @@ spec:
             - name: OPENLIT_API_KEY
               value: {{ .Values.config.apiKey | quote }}
             {{- end }}
+            {{- if .Values.config.instanceId }}
+            - name: OPENLIT_INSTANCE_ID
+              value: {{ .Values.config.instanceId | quote }}
+            {{- end }}
           securityContext:
             privileged: true
           volumeMounts:

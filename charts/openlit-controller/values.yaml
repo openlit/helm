@@ -31,6 +31,10 @@ config:
   clusterId: "default"
   # API key for authenticating with the dashboard (optional)
   apiKey: ""
+  # Override the controller's instance identity (optional).
+  # By default, the controller uses NODE_NAME (Kubernetes downward API).
+  # Set this for custom identity in multi-cluster or advanced setups.
+  instanceId: ""
 
 # ServiceAccount configuration
 serviceAccount:
