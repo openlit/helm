@@ -119,7 +119,7 @@ clickhouse:
   # Docker image configuration for ClickHouse
   image:
     repository: clickhouse/clickhouse-server
-    tag: 24.2.2
+    tag: 24.4.1
     pullPolicy: IfNotPresent
 
   # Authentication configuration for ClickHouse
@@ -174,16 +174,19 @@ ingress:
     hosts:
     - chart-example.local
 
-# OpenLIT Operator - Auto-instrumentation for Kubernetes workloads
-# Enable this to automatically instrument your applications with OpenTelemetry
-openlit-operator:
-  # Set to true to deploy the OpenLIT operator alongside OpenLIT
+# OpenLIT Controller - Zero-code LLM and Agent observability using eBPF
+# Enable this to deploy the Controller DaemonSet alongside OpenLIT.
+# The Controller auto-discovers services making LLM API calls and lets you
+# enable observability from the Agents page — no code changes needed.
+openlit-controller:
+  # Set to true to deploy the OpenLIT Controller alongside OpenLIT
   enabled: false
 
-  # Operator configuration can be customized here
-  # For full configuration options, see: charts/openlit-operator/values.yaml
-  # Example:
-  # replicaCount: 1
-  # image:
-  #   repository: ghcr.io/openlit/operator
-  #   tag: latest
+  # Controller configuration — URLs are auto-derived from the parent chart.
+  # Override only if pointing to an external OpenLIT instance.
+  # config:
+  #   openlitUrl: ""
+  #   otlpEndpoint: ""
+  #   pollInterval: "60s"
+  #   environment: "production"
+  #   clusterId: "default"

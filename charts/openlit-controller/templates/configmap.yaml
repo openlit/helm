@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openlit-controller.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "openlit-controller.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    openlit_url: {{ include "openlit-controller.openlitUrl" . | quote }}
+    otlp_endpoint: {{ include "openlit-controller.otlpEndpoint" . | quote }}
+    obi_binary_path: "/usr/local/bin/obi"
+    poll_interval: {{ .Values.config.pollInterval | quote }}
+    environment: {{ .Values.config.environment | quote }}
+    cluster_id: {{ .Values.config.clusterId | quote }}
