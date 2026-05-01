@@ -286,6 +286,39 @@ entries:
     version: 0.0.6
   openlit:
   - apiVersion: v2
+    appVersion: 1.19.0
+    created: "2026-05-01T00:15:25.763773098Z"
+    dependencies:
+    - condition: openlit-controller.enabled
+      name: openlit-controller
+      repository: file://../openlit-controller
+      tags:
+      - controller
+      version: 0.1.0
+    description: A Helm chart for OpenLIT
+    digest: 68fe4470f18776d448321a0980caaa3696240edb6d0f61a0a14f11dc6823d819
+    home: https://openlit.io
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    keywords:
+    - observability
+    - opentelemetry
+    - ai
+    - ml
+    - instrumentation
+    - monitoring
+    - tracing
+    maintainers:
+    - email: contact@openlit.io
+      name: OpenLIT Team
+      url: https://openlit.io
+    name: openlit
+    sources:
+    - https://github.com/openlit/openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-1.19.0/openlit-1.19.0.tgz
+    version: 1.19.0
+  - apiVersion: v2
     appVersion: 1.17.2
     created: "2026-03-28T07:47:27.983746565Z"
     dependencies:
@@ -676,6 +709,36 @@ entries:
     urls:
     - https://github.com/openlit/helm/releases/download/openlit-1.0.0/openlit-1.0.0.tgz
     version: 1.0.0
+  openlit-controller:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2026-05-01T00:15:25.928584393Z"
+    description: OpenLIT Controller - Zero-code LLM and Agent observability using
+      eBPF
+    digest: e393dca1b0e2514a7ed114d70d91cbb015dc8971d81c9b23dfd5c8ed30c48e2f
+    home: https://openlit.io
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    keywords:
+    - observability
+    - opentelemetry
+    - ai
+    - llm
+    - ebpf
+    - instrumentation
+    - monitoring
+    - tracing
+    - controller
+    maintainers:
+    - email: contact@openlit.io
+      name: OpenLIT Team
+      url: https://openlit.io
+    name: openlit-controller
+    sources:
+    - https://github.com/openlit/openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-controller-0.1.0/openlit-controller-0.1.0.tgz
+    version: 0.1.0
   openlit-operator:
   - apiVersion: v2
     appVersion: 0.0.2
@@ -816,4 +879,4 @@ entries:
     urls:
     - https://github.com/openlit/helm/releases/download/openlit-operator-0.0.1/openlit-operator-0.0.1.tgz
     version: 0.0.1
-generated: "2026-03-31T10:49:13.24382854Z"
+generated: "2026-05-01T00:15:25.928843599Z"
