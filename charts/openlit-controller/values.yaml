@@ -19,10 +19,31 @@ fullnameOverride: ""
 # are auto-derived from the parent release name. Override only when using an
 # external OpenLIT instance or deploying the controller standalone.
 config:
-  # URL of the OpenLIT dashboard (required when standalone)
+  # Full URL of the OpenLIT dashboard.  Highest priority override — when set,
+  # openlitServiceName and openlitNamespace are ignored for this field.
+  # Example: "http://openlit.monitoring.svc.cluster.local:3000"
   openlitUrl: ""
-  # OTLP HTTP endpoint for traces and metrics (required when standalone)
+  # Full OTLP HTTP endpoint.  Same override semantics as openlitUrl.
+  # Example: "http://openlit.monitoring.svc.cluster.local:4318"
   otlpEndpoint: ""
+
+  # --- Standalone deployment helpers ---
+  # When deploying the controller chart on its own (not as a subchart of
+  # openlit), set openlitServiceName to the Kubernetes Service name of your
+  # existing OpenLIT deployment.  Optionally set openlitNamespace if OpenLIT
+  # is in a different namespace.
+  #
+  # Examples (standalone in same namespace):
+  #   config.openlitServiceName: openlit
+  #
+  # Examples (standalone, cross-namespace):
+  #   config.openlitServiceName: openlit
+  #   config.openlitNamespace: monitoring
+  #
+  # When deployed as a subchart of the openlit chart, leave both empty —
+  # the service name is auto-derived from the release.
+  openlitServiceName: ""
+  openlitNamespace: ""
   # How often the controller polls the dashboard
   pollInterval: "60s"
   # Deployment environment label

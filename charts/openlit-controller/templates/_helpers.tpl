@@ -64,28 +64,64 @@ ServiceAccount name
 {{- end }}
 
 {{/*
+Resolve the OpenLIT Kubernetes service name.
+
+Priority (highest to lowest):
+  1. config.openlitServiceName — explicit override for standalone deployments.
+  2. Auto-derive — mirrors the parent "openlit" chart's fullname logic so the
+     name is correct when deployed as a subchart regardless of release name.
+*/}}
+{{- define "openlit-controller.parentServiceName" -}}
+{{- if .Values.config.openlitServiceName }}
+{{- .Values.config.openlitServiceName | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $parentName := "openlit" }}
+{{- if contains $parentName .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $parentName | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Build a host string for the parent OpenLIT service.
+
+When config.openlitNamespace is set (standalone / cross-namespace), produce a
+fully-qualified DNS name.  Otherwise use the short service name (same namespace).
+*/}}
+{{- define "openlit-controller.parentServiceHost" -}}
+{{- $svc := include "openlit-controller.parentServiceName" . }}
+{{- if .Values.config.openlitNamespace }}
+{{- printf "%s.%s.svc.cluster.local" $svc .Values.config.openlitNamespace }}
+{{- else }}
+{{- $svc }}
+{{- end }}
+{{- end }}
+
+{{/*
 Resolve the OpenLIT dashboard URL.
-When config.openlitUrl is set, use it directly.
-Otherwise, derive from the parent chart's release name (subchart mode).
+
+Priority: explicit config.openlitUrl > auto-derived from service name + namespace.
 */}}
 {{- define "openlit-controller.openlitUrl" -}}
 {{- if .Values.config.openlitUrl }}
 {{- .Values.config.openlitUrl }}
 {{- else }}
-{{- printf "http://%s-openlit:%s" .Release.Name "3000" }}
+{{- printf "http://%s:%s" (include "openlit-controller.parentServiceHost" .) "3000" }}
 {{- end }}
 {{- end }}
 
 {{/*
 Resolve the OTLP endpoint.
-When config.otlpEndpoint is set, use it directly.
-Otherwise, derive from the parent chart's release name (subchart mode).
+
+Priority: explicit config.otlpEndpoint > auto-derived from service name + namespace.
 */}}
 {{- define "openlit-controller.otlpEndpoint" -}}
 {{- if .Values.config.otlpEndpoint }}
 {{- .Values.config.otlpEndpoint }}
 {{- else }}
-{{- printf "http://%s-openlit:%s" .Release.Name "4318" }}
+{{- printf "http://%s:%s" (include "openlit-controller.parentServiceHost" .) "4318" }}
 {{- end }}
 {{- end }}
 
