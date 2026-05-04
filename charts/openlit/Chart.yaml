@@ -22,7 +22,7 @@ maintainers:
     url: https://openlit.io
 dependencies:
   - name: openlit-controller
-    version: "0.1.0"
+    version: "0.1.1"
     repository: "file://../openlit-controller"
     condition: openlit-controller.enabled
     tags:
