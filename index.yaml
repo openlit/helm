@@ -286,6 +286,39 @@ entries:
     version: 0.0.6
   openlit:
   - apiVersion: v2
+    appVersion: 1.20.0
+    created: "2026-05-08T12:44:56.464034337Z"
+    dependencies:
+    - condition: openlit-controller.enabled
+      name: openlit-controller
+      repository: file://../openlit-controller
+      tags:
+      - controller
+      version: 0.2.0
+    description: A Helm chart for OpenLIT
+    digest: 77604d107cf6e32048d865d69550d7d8cad95649085bf55a560e4bd78704625e
+    home: https://openlit.io
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    keywords:
+    - observability
+    - opentelemetry
+    - ai
+    - ml
+    - instrumentation
+    - monitoring
+    - tracing
+    maintainers:
+    - email: contact@openlit.io
+      name: OpenLIT Team
+      url: https://openlit.io
+    name: openlit
+    sources:
+    - https://github.com/openlit/openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-1.20.0/openlit-1.20.0.tgz
+    version: 1.20.0
+  - apiVersion: v2
     appVersion: 1.19.0
     created: "2026-05-04T11:36:56.987151748Z"
     dependencies:
@@ -744,6 +777,35 @@ entries:
     version: 1.0.0
   openlit-controller:
   - apiVersion: v2
+    appVersion: 0.2.0
+    created: "2026-05-08T12:44:56.684121847Z"
+    description: OpenLIT Controller - Zero-code LLM and Agent observability using
+      eBPF
+    digest: 8c9060d97d6bb027764601a611d103637634a3a5d184b267f2928ceec6b88c02
+    home: https://openlit.io
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    keywords:
+    - observability
+    - opentelemetry
+    - ai
+    - llm
+    - ebpf
+    - instrumentation
+    - monitoring
+    - tracing
+    - controller
+    maintainers:
+    - email: contact@openlit.io
+      name: OpenLIT Team
+      url: https://openlit.io
+    name: openlit-controller
+    sources:
+    - https://github.com/openlit/openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-controller-0.2.0/openlit-controller-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 0.1.0
     created: "2026-05-04T11:36:57.240118943Z"
     description: OpenLIT Controller - Zero-code LLM and Agent observability using
@@ -941,4 +1003,4 @@ entries:
     urls:
     - https://github.com/openlit/helm/releases/download/openlit-operator-0.0.1/openlit-operator-0.0.1.tgz
     version: 0.0.1
-generated: "2026-05-04T11:36:57.240332628Z"
+generated: "2026-05-08T12:44:56.684426785Z"
