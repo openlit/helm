@@ -1,6 +1,6 @@
 dependencies:
 - name: openlit-controller
   repository: file://../openlit-controller
-  version: 0.1.1
-digest: sha256:4ddad965d3914002694065413b7df1c67b230f326767e2d32367e28382e2e9b5
-generated: "2026-05-04T17:03:06.057969+05:30"
+  version: 0.2.0
+digest: sha256:29a96f817121edafd3a8f22f7e9581312a569e82fa2007f222a5ef74a337a8e5
+generated: "2026-05-05T00:15:00.598097+05:30"
