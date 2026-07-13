@@ -2,8 +2,8 @@ apiVersion: v2
 name: openlit
 description: A Helm chart for OpenLIT
 type: application
-version: 1.20.0
-appVersion: 1.20.0
+version: 1.23.0
+appVersion: 1.23.0
 icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
 home: https://openlit.io
 sources:
@@ -22,7 +22,7 @@ maintainers:
     url: https://openlit.io
 dependencies:
   - name: openlit-controller
-    version: "0.2.0"
+    version: "0.10.0"
     repository: "file://../openlit-controller"
     condition: openlit-controller.enabled
     tags:

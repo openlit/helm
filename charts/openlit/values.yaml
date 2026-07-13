@@ -21,7 +21,7 @@ imagePullSecrets: []
 
 # Kubernetes Service configuration for the OpenLIT
 service:
-  # Type of service (e.g., LoadBalancer, NodePort)
+  # Type of service (e.g., LoadBalancer, NodePort, ClusterIP)
   type: LoadBalancer
   # Port on which the service is exposed
   port: 3000
@@ -53,6 +53,12 @@ tolerations: []
 
 # Affinity for pod assignment
 affinity: {}
+
+# Extra environment variables passed through to the OpenLIT container.
+# Useful for any documented OpenLIT env var not covered below.
+extraEnv: []
+# - name: OPENLIT_EDITION
+#   value: "ce"
 
 # Persistent storage configuration for OpenLIT
 persistence:
@@ -90,6 +96,36 @@ config:
   # Set to true or false for anonymous usage metrics. More info: https://docs.openlit.io/latest/anonymous-telemetry
   usageMetrics: true
 
+  # Canonical public URL of OpenLIT for NextAuth callbacks / CORS same-site checks.
+  # Required for non-localhost deployments (LoadBalancer / Ingress).
+  # Example: "https://openlit.example.com"
+  nextauthUrl: ""
+
+  # Optional stable vault encryption key. If empty, the container falls back to
+  # the persisted NEXTAUTH_SECRET generated at runtime.
+  # Generate with: openssl rand -base64 32
+  vaultEncryptionKey: ""
+
+  # Comma-separated browser origins allowed for cross-origin Vault secret retrieval.
+  # Example: "https://app.example.com,https://admin.example.com"
+  allowedCorsOrigins: ""
+
+  # OAuth providers (optional). Leave empty to disable.
+  # See https://docs.openlit.io/latest/openlit/oauth
+  oauth:
+    googleClientId: ""
+    googleClientSecret: ""
+    githubClientId: ""
+    githubClientSecret: ""
+    # Optional existing secret that holds OAuth credentials.
+    # Keys default to GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET /
+    # GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET when not overridden.
+    # existingSecret: ""
+    # googleClientIdKey: "GOOGLE_CLIENT_ID"
+    # googleClientSecretKey: "GOOGLE_CLIENT_SECRET"
+    # githubClientIdKey: "GITHUB_CLIENT_ID"
+    # githubClientSecretKey: "GITHUB_CLIENT_SECRET"
+
   # To use OpenLIT with email and password authentication, configure the following settings:
   preview_mode:
     enabled: false
@@ -100,6 +136,8 @@ config:
   opamp:
     # Environment for OpAMP (e.g., production, staging, development)
     environment: production
+    # Certificates directory inside the container (matches docker-compose default)
+    certsDir: "/app/opamp/certs"
     # Skip TLS certificate verification (set to true only for testing)
     tlsInsecureSkipVerify: false
     # Require client certificate for TLS
@@ -112,6 +150,8 @@ config:
     logLevel: info
 
 # ClickHouse database configuration (used as the backend for OpenLIT)
+# Default tag matches docker-compose.yml. Override clickhouse.image.tag to try
+# newer releases (e.g. 26.3 LTS) against your own compatibility validation.
 clickhouse:
   # Toggle to enable/disable the ClickHouse database deployment
   enabled: true
@@ -119,7 +159,7 @@ clickhouse:
   # Docker image configuration for ClickHouse
   image:
     repository: clickhouse/clickhouse-server
-    tag: 24.4.1
+    tag: "24.4.1"
     pullPolicy: IfNotPresent
 
   # Authentication configuration for ClickHouse
@@ -136,6 +176,20 @@ clickhouse:
     user: default
     # if you set clickhouse.secret, Skip this password field
     password: OPENLIT
+
+  # Database name created on first boot (CLICKHOUSE_DATABASE). Must match
+  # config.database.name when using the bundled ClickHouse.
+  database: openlit
+
+  # Mount the same logging-tuned ClickHouse config used by docker-compose
+  # (assets/clickhouse-config.xml).
+  config:
+    enabled: true
+
+  # Create the application database via an init script on first boot
+  # (parity with assets/clickhouse-init.sh CREATE DATABASE step).
+  # OTEL / OpenLIT tables are created by the collector exporter and app migrations.
+  initDatabase: true
 
   # Kubernetes Service configuration for ClickHouse
   service:
@@ -190,3 +244,5 @@ openlit-controller:
   #   pollInterval: "60s"
   #   environment: "production"
   #   clusterId: "default"
+  #   sdkVersion: ""
+  #   nodeSdkVersion: ""

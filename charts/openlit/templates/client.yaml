@@ -35,7 +35,8 @@ data:
         ttl: 730h
         logs_table_name: otel_logs
         traces_table_name: otel_traces
-        metrics_table_name: otel_metrics
+        # Metrics use separate tables by type: otel_metrics_gauge, otel_metrics_sum,
+        # otel_metrics_histogram, otel_metrics_summary, otel_metrics_exponential_histogram
         timeout: 5s
         retry_on_failure:
           enabled: true
@@ -81,6 +82,10 @@ spec:
         app: {{ include "openlit.fullname" . }}
         {{- include "openlit.labels" . | nindent 8 }}
         app.kubernetes.io/component: openlit
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       {{- if .Values.clickhouse.enabled }}
       initContainers:
@@ -95,7 +100,7 @@ spec:
             sleep 5
           done
           echo "ClickHouse is ready!"
-          
+
           # Also check if ClickHouse HTTP interface is responding
           until wget --quiet --tries=1 --timeout=3 --spider http://{{ .Release.Name }}-db.{{ .Release.Namespace }}.svc.cluster.local:8123/ping || [ $? -eq 4 ]; do
             echo "ClickHouse HTTP interface not ready, waiting..."
@@ -121,7 +126,11 @@ spec:
           - containerPort: 4318
             name: otlp-http
         env:
+          # entrypoint.sh binds via DOCKER_PORT (falls back to 3000). Keep PORT
+          # and DOCKER_PORT in sync with the service port (matches docker-compose).
           - name: PORT
+            value: "{{ .Values.service.port }}"
+          - name: DOCKER_PORT
             value: "{{ .Values.service.port }}"
           - name: HOSTNAME
             value: "0.0.0.0"
@@ -140,7 +149,7 @@ spec:
             value: "{{ .Values.config.database.name }}"
           - name: SQLITE_DATABASE_URL
             value: "{{ .Values.config.sqlite_url }}"
-          {{ if .Values.config.secret }}
+          {{- if .Values.config.secret }}
           - name: INIT_DB_USERNAME
             valueFrom:
               secretKeyRef:
@@ -151,11 +160,66 @@ spec:
               secretKeyRef:
                 name: {{ .Values.config.secret.name }}
                 key: {{ .Values.config.secret.passwordKey }}
-          {{ else }}
+          {{- else }}
           - name: INIT_DB_USERNAME
             value: "{{ .Values.config.database.username }}"
           - name: INIT_DB_PASSWORD
             value: "{{ .Values.config.database.password }}"
+          {{- end }}
+          {{- if .Values.config.nextauthUrl }}
+          - name: NEXTAUTH_URL
+            value: {{ .Values.config.nextauthUrl | quote }}
+          {{- end }}
+          {{- if .Values.config.vaultEncryptionKey }}
+          - name: OPENLIT_VAULT_ENCRYPTION_KEY
+            value: {{ .Values.config.vaultEncryptionKey | quote }}
+          {{- end }}
+          {{- if .Values.config.allowedCorsOrigins }}
+          - name: OPENLIT_ALLOWED_CORS_ORIGINS
+            value: {{ .Values.config.allowedCorsOrigins | quote }}
+          {{- end }}
+          {{- if .Values.config.oauth.existingSecret }}
+          - name: GOOGLE_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.config.oauth.existingSecret }}
+                key: {{ default "GOOGLE_CLIENT_ID" .Values.config.oauth.googleClientIdKey }}
+                optional: true
+          - name: GOOGLE_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.config.oauth.existingSecret }}
+                key: {{ default "GOOGLE_CLIENT_SECRET" .Values.config.oauth.googleClientSecretKey }}
+                optional: true
+          - name: GITHUB_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.config.oauth.existingSecret }}
+                key: {{ default "GITHUB_CLIENT_ID" .Values.config.oauth.githubClientIdKey }}
+                optional: true
+          - name: GITHUB_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.config.oauth.existingSecret }}
+                key: {{ default "GITHUB_CLIENT_SECRET" .Values.config.oauth.githubClientSecretKey }}
+                optional: true
+          {{- else }}
+          {{- if .Values.config.oauth.googleClientId }}
+          - name: GOOGLE_CLIENT_ID
+            value: {{ .Values.config.oauth.googleClientId | quote }}
+          {{- end }}
+          {{- if .Values.config.oauth.googleClientSecret }}
+          - name: GOOGLE_CLIENT_SECRET
+            value: {{ .Values.config.oauth.googleClientSecret | quote }}
+          {{- end }}
+          {{- if .Values.config.oauth.githubClientId }}
+          - name: GITHUB_CLIENT_ID
+            value: {{ .Values.config.oauth.githubClientId | quote }}
+          {{- end }}
+          {{- if .Values.config.oauth.githubClientSecret }}
+          - name: GITHUB_CLIENT_SECRET
+            value: {{ .Values.config.oauth.githubClientSecret | quote }}
+          {{- end }}
           {{- end }}
           {{- if .Values.config.preview_mode.enabled }}
           - name: DEMO_ACCOUNT_EMAIL
@@ -165,6 +229,8 @@ spec:
           {{- end }}
           - name: OPAMP_ENVIRONMENT
             value: "{{ .Values.config.opamp.environment }}"
+          - name: OPAMP_CERTS_DIR
+            value: "{{ .Values.config.opamp.certsDir }}"
           - name: OPAMP_TLS_INSECURE_SKIP_VERIFY
             value: "{{ .Values.config.opamp.tlsInsecureSkipVerify }}"
           - name: OPAMP_TLS_REQUIRE_CLIENT_CERT
@@ -175,6 +241,9 @@ spec:
             value: "{{ .Values.config.opamp.tlsMaxVersion }}"
           - name: OPAMP_LOG_LEVEL
             value: "{{ .Values.config.opamp.logLevel }}"
+          {{- with .Values.extraEnv }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         livenessProbe:
           httpGet:
             path: /
@@ -257,7 +326,7 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - name: openlit
-      port: {{ .Values.service.port }} 
+      port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.target_port }}
     - name: otel-otlp
       port: 4317

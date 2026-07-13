@@ -1,4 +1,72 @@
 {{- if .Values.clickhouse.enabled }}
+{{- if or .Values.clickhouse.config.enabled .Values.clickhouse.initDatabase }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-db-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}-db
+    {{- include "openlit.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+data:
+  {{- if .Values.clickhouse.config.enabled }}
+  custom-config.xml: |
+    <?xml version="1.0"?>
+    <clickhouse>
+        <logger>
+            <level>warning</level>
+            <console>true</console>
+        </logger>
+        <trace_log>
+            <level>6</level>
+            <flush_interval_milliseconds>120000</flush_interval_milliseconds>
+            <table_ttl>604800</table_ttl>
+        </trace_log>
+        <text_log>
+            <level>warning</level>
+            <table_ttl>604800</table_ttl>
+            <flush_interval_milliseconds>120000</flush_interval_milliseconds>
+        </text_log>
+        <query_log>
+            <log_queries_min_query_duration_ms>1000</log_queries_min_query_duration_ms>
+            <flush_interval_milliseconds>60000</flush_interval_milliseconds>
+            <table_ttl>604800</table_ttl>
+        </query_log>
+        <system_log>
+            <level>warning</level>
+        </system_log>
+        <metric_log>
+            <collect_interval_milliseconds>60000</collect_interval_milliseconds>
+            <flush_interval_milliseconds>120000</flush_interval_milliseconds>
+            <table_ttl>604800</table_ttl>
+        </metric_log>
+        <asynchronous_metric_log>
+            <collect_interval_milliseconds>60000</collect_interval_milliseconds>
+            <flush_interval_milliseconds>120000</flush_interval_milliseconds>
+            <table_ttl>604800</table_ttl>
+        </asynchronous_metric_log>
+        <part_log>
+            <level>warning</level>
+            <flush_interval_milliseconds>120000</flush_interval_milliseconds>
+            <table_ttl>604800</table_ttl>
+        </part_log>
+        <latency_log>
+            <flush_interval_milliseconds>120000</flush_interval_milliseconds>
+            <table_ttl>604800</table_ttl>
+        </latency_log>
+    </clickhouse>
+  {{- end }}
+  {{- if .Values.clickhouse.initDatabase }}
+  init-database.sh: |
+    #!/bin/bash
+    set -e
+    echo "Creating ClickHouse database ${CLICKHOUSE_DATABASE} if needed..."
+    clickhouse-client --query "CREATE DATABASE IF NOT EXISTS ${CLICKHOUSE_DATABASE}"
+    echo "Database ${CLICKHOUSE_DATABASE} is ready."
+  {{- end }}
+---
+{{- end }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -59,6 +127,12 @@ spec:
         - name: CLICKHOUSE_USER
           value: {{ .Values.clickhouse.auth.user | quote }}
         {{- end }}
+        - name: CLICKHOUSE_DATABASE
+          value: {{ default .Values.config.database.name .Values.clickhouse.database | quote }}
+        {{- if .Values.clickhouse.initDatabase }}
+        - name: CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS
+          value: "true"
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /ping
@@ -80,6 +154,25 @@ spec:
         volumeMounts:
         - name: {{ .Release.Name }}-db-storage
           mountPath: /var/lib/clickhouse
+        {{- if .Values.clickhouse.config.enabled }}
+        - name: clickhouse-config
+          mountPath: /etc/clickhouse-server/config.d/custom-config.xml
+          subPath: custom-config.xml
+          readOnly: true
+        {{- end }}
+        {{- if .Values.clickhouse.initDatabase }}
+        - name: clickhouse-config
+          mountPath: /docker-entrypoint-initdb.d/init-database.sh
+          subPath: init-database.sh
+          readOnly: true
+        {{- end }}
+      {{- if or .Values.clickhouse.config.enabled .Values.clickhouse.initDatabase }}
+      volumes:
+      - name: clickhouse-config
+        configMap:
+          name: {{ .Release.Name }}-db-config
+          defaultMode: 0755
+      {{- end }}
   volumeClaimTemplates:
   - metadata:
       name: {{ .Release.Name }}-db-storage

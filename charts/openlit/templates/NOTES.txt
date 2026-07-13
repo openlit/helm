@@ -70,4 +70,17 @@ Login to OpenLIT using the default credentials and start monitoring and evaluati
 - Email as 'user@openlit.io'
 - Password as 'openlituser'
 
+{{- if not .Values.config.nextauthUrl }}
+
+---------------------------------------------------------------------------------
+IMPORTANT: SET config.nextauthUrl FOR NON-LOCALHOST ACCESS
+---------------------------------------------------------------------------------
+
+For LoadBalancer / Ingress deployments, set the public URL used by NextAuth:
+
+  --set config.nextauthUrl=https://your-openlit-host
+
+Without this, auth callbacks default to http://localhost:3000 inside the pod.
+{{- end }}
+
 For any questions or issues, please refer to the chart README or contact our support team.

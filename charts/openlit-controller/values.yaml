@@ -50,8 +50,15 @@ config:
   environment: "production"
   # Cluster identifier for multi-cluster setups
   clusterId: "default"
+  # REST API listen address inside the controller pod
+  apiListen: ":4321"
   # API key for authenticating with the dashboard (optional)
   apiKey: ""
+  # Pin OpenLIT Python SDK version used for zero-code injection (optional).
+  # Leave empty to let the controller/auto path choose.
+  sdkVersion: ""
+  # Pin OpenLIT Node.js SDK version independently of the Python SDK (optional).
+  nodeSdkVersion: ""
   # Override the controller's instance identity (optional).
   # By default, the controller uses NODE_NAME (Kubernetes downward API).
   # Set this for custom identity in multi-cluster or advanced setups.

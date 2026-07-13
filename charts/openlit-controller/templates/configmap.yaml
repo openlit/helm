@@ -13,3 +13,13 @@ data:
     poll_interval: {{ .Values.config.pollInterval | quote }}
     environment: {{ .Values.config.environment | quote }}
     cluster_id: {{ .Values.config.clusterId | quote }}
+    api_listen: {{ .Values.config.apiListen | quote }}
+    {{- if .Values.config.apiKey }}
+    api_key: {{ .Values.config.apiKey | quote }}
+    {{- end }}
+    {{- if .Values.config.sdkVersion }}
+    sdk_version: {{ .Values.config.sdkVersion | quote }}
+    {{- end }}
+    {{- if .Values.config.nodeSdkVersion }}
+    node_sdk_version: {{ .Values.config.nodeSdkVersion | quote }}
+    {{- end }}

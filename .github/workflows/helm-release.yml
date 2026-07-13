@@ -46,20 +46,20 @@ jobs:
             fi
           fi
           
-          # Check if openlit-operator chart changed and version was bumped
-          if echo "$CHANGED_FILES" | grep -E "^charts/openlit-operator/" > /dev/null; then
-            if echo "$CHANGED_FILES" | grep -E "^charts/openlit-operator/Chart\.yaml$" > /dev/null; then
+          # Check if openlit-controller chart changed and version was bumped
+          if echo "$CHANGED_FILES" | grep -E "^charts/openlit-controller/" > /dev/null; then
+            if echo "$CHANGED_FILES" | grep -E "^charts/openlit-controller/Chart\.yaml$" > /dev/null; then
               # Chart.yaml was modified, check if version changed
-              OLD_VERSION=$(git show HEAD~1:charts/openlit-operator/Chart.yaml | grep '^version:' | awk '{print $2}')
-              NEW_VERSION=$(grep '^version:' charts/openlit-operator/Chart.yaml | awk '{print $2}')
+              OLD_VERSION=$(git show HEAD~1:charts/openlit-controller/Chart.yaml | grep '^version:' | awk '{print $2}')
+              NEW_VERSION=$(grep '^version:' charts/openlit-controller/Chart.yaml | awk '{print $2}')
               if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
-                echo "openlit-operator version bumped from $OLD_VERSION to $NEW_VERSION"
-                CHARTS_TO_RELEASE+=("openlit-operator")
+                echo "openlit-controller version bumped from $OLD_VERSION to $NEW_VERSION"
+                CHARTS_TO_RELEASE+=("openlit-controller")
               else
-                echo "openlit-operator Chart.yaml changed but version not bumped ($OLD_VERSION)"
+                echo "openlit-controller Chart.yaml changed but version not bumped ($OLD_VERSION)"
               fi
             else
-              echo "openlit-operator files changed but Chart.yaml not modified - no release needed"
+              echo "openlit-controller files changed but Chart.yaml not modified - no release needed"
             fi
           fi
           

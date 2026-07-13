@@ -6,10 +6,13 @@ metadata:
   labels:
     {{- include "openlit-controller.labels" . | nindent 4 }}
 rules:
+  # Discovery + naked-pod Agent Observability (create/delete for pod restart).
+  # Matches docs/latest/controller/configuration.mdx and examples/kubernetes/controller.yaml.
   - apiGroups: [""]
-    resources: ["pods", "nodes", "namespaces", "services", "replicationcontrollers"]
-    verbs: ["get", "list", "watch"]
+    resources: ["pods", "pods/log", "nodes", "namespaces", "services", "replicationcontrollers"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  # SDK injection patches Deployments / DaemonSets / StatefulSets / ReplicaSets.
   - apiGroups: ["apps"]
     resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
-    verbs: ["get", "list", "watch", "patch"]
+    verbs: ["get", "list", "watch", "update", "patch"]
 {{- end }}

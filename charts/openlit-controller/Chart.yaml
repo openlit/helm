@@ -2,8 +2,8 @@ apiVersion: v2
 name: openlit-controller
 description: OpenLIT Controller - Zero-code LLM and Agent observability using eBPF
 type: application
-version: 0.2.0
-appVersion: "0.2.0"
+version: 0.10.0
+appVersion: "0.10.0"
 home: https://openlit.io
 sources:
   - https://github.com/openlit/openlit
