@@ -96,9 +96,12 @@ config:
   # Set to true or false for anonymous usage metrics. More info: https://docs.openlit.io/latest/anonymous-telemetry
   usageMetrics: true
 
-  # Canonical public URL of OpenLIT for NextAuth callbacks / CORS same-site checks.
-  # Required for non-localhost deployments (LoadBalancer / Ingress).
-  # Example: "https://openlit.example.com"
+  # Canonical public URL of OpenLIT (NEXTAUTH_URL).
+  # Leave empty for the default email/password login — OpenLIT derives the origin
+  # from the incoming request host (and X-Forwarded-* behind an Ingress), so it
+  # works on any URL with no config.
+  # Set this ONLY when using Google/GitHub OAuth, whose redirect URIs must match
+  # a fixed public URL. Example: "https://openlit.example.com"
   nextauthUrl: ""
 
   # Optional stable vault encryption key. If empty, the container falls back to
@@ -177,19 +180,10 @@ clickhouse:
     # if you set clickhouse.secret, Skip this password field
     password: OPENLIT
 
-  # Database name created on first boot (CLICKHOUSE_DATABASE). Must match
-  # config.database.name when using the bundled ClickHouse.
+  # Database name created on first boot via the image's native CLICKHOUSE_DATABASE
+  # env. Defaults to config.database.name. The OpenLIT app and OTel collector
+  # still create/verify the schema and tables on startup.
   database: openlit
-
-  # Mount the same logging-tuned ClickHouse config used by docker-compose
-  # (assets/clickhouse-config.xml).
-  config:
-    enabled: true
-
-  # Create the application database via an init script on first boot
-  # (parity with assets/clickhouse-init.sh CREATE DATABASE step).
-  # OTEL / OpenLIT tables are created by the collector exporter and app migrations.
-  initDatabase: true
 
   # Kubernetes Service configuration for ClickHouse
   service:
