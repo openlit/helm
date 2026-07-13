@@ -286,6 +286,39 @@ entries:
     version: 0.0.6
   openlit:
   - apiVersion: v2
+    appVersion: 1.24.0
+    created: "2026-07-13T02:15:34.482698308Z"
+    dependencies:
+    - condition: openlit-controller.enabled
+      name: openlit-controller
+      repository: file://../openlit-controller
+      tags:
+      - controller
+      version: 0.10.0
+    description: A Helm chart for OpenLIT
+    digest: 8fbcbf00b726760c24f004a369b5096196dc91ce54978f9b746d35465b23107c
+    home: https://openlit.io
+    icon: https://avatars.githubusercontent.com/u/149867240?s=200&v=4
+    keywords:
+    - observability
+    - opentelemetry
+    - ai
+    - ml
+    - instrumentation
+    - monitoring
+    - tracing
+    maintainers:
+    - email: contact@openlit.io
+      name: OpenLIT Team
+      url: https://openlit.io
+    name: openlit
+    sources:
+    - https://github.com/openlit/openlit
+    type: application
+    urls:
+    - https://github.com/openlit/helm/releases/download/openlit-1.24.0/openlit-1.24.0.tgz
+    version: 1.24.0
+  - apiVersion: v2
     appVersion: 1.23.0
     created: "2026-07-13T00:18:48.998439574Z"
     dependencies:
@@ -1065,4 +1098,4 @@ entries:
     urls:
     - https://github.com/openlit/helm/releases/download/openlit-operator-0.0.1/openlit-operator-0.0.1.tgz
     version: 0.0.1
-generated: "2026-07-13T00:18:49.127052897Z"
+generated: "2026-07-13T02:15:34.483007646Z"
